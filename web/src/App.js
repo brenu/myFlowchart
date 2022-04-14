@@ -20,6 +20,8 @@ function App() {
     "#777"
   ];
 
+  let statelessPrerequisites = [];
+
   useEffect(() => {
     async function handleInit() {
       setTimeout(() => 
@@ -56,33 +58,77 @@ function App() {
     handleInit();
   }, []);
 
+  useEffect(() => {
+    console.log(prerequisitesPath);
+  }, [prerequisitesPath]);
+
   function updatePrerequisitesPath(semesterIndex, subjectIndex) {
+    getPreviousSubjects(semesterIndex, subjectIndex);
+    getFutureSubjects(semesterIndex, subjectIndex);
+    // console.log(semesterIndex, subjectIndex);
+  }
+
+  function getPreviousSubjects(semesterIndex, subjectIndex) {
+    let done = true;
+    
     const subject = flowchart[semesterIndex][subjectIndex];
     const localPrerequisitesPath = [];
-    
-    const previousSubjects = [];
-    const futureSubjects = [];
 
-    previousSubjects.concat(subject.prerequisites);
+    let previousSubjects = subject.prerequisites ? subject.prerequisites : [];
 
     if(subject.prerequisites) {
       for(let localSubject of subject.prerequisites) {
-        localPrerequisitesPath.push({from:localSubject, to:subject.code})
-      }
-    }
-
-    for(let i=semesterIndex; i>=0; i--) {
-      for (let j=0; j>flowchart[i].length; j++) {
-        if (previousSubjects.includes(flowchart[i][j].code)) {
-          // localPrerequisitesPath.push({from:, to:})
+        if (!statelessPrerequisites.some(item => item.from === localSubject && item.to === subject.code)) {
+          localPrerequisitesPath.push({from:localSubject, to:subject.code})
         }
       }
     }
 
-    for(let i=semesterIndex; i<flowchart.length; i++) {
-      for (let j=0; j>flowchart[i].length; j++) {
+    statelessPrerequisites = statelessPrerequisites.concat(localPrerequisitesPath);
 
+    for(let i=semesterIndex; i>=0; i--) {
+      for (let j=0; j<flowchart[i].length; j++) {
+        if (previousSubjects.includes(flowchart[i][j].code)) {
+          done = false;
+          getPreviousSubjects(i,j);
+        }
       }
+    }
+
+    if (done) {
+      statelessPrerequisites = prerequisitesPath.concat(statelessPrerequisites);
+      setPrerequisitesPath(statelessPrerequisites);
+      return;
+    }
+
+    return;
+  }
+
+  function getFutureSubjects(semesterIndex, subjectIndex) {
+    // console.log("CHAMA")
+    let done = true;
+    const subject = flowchart[semesterIndex][subjectIndex];
+
+    for (let i = semesterIndex+1; i < flowchart.length; i++) {
+      // console.log(i, flowchart.length)
+      for (let j = 0; j < flowchart[i].length; j++) {
+        // console.log("aqui =>", i, flowchart[i])
+        const nextSubject = flowchart[i][j];
+
+        if (nextSubject.prerequisites && 
+            nextSubject.prerequisites.includes(subject.code) &&
+            !statelessPrerequisites.some(item => item.from === subject.code && item.to === nextSubject.code)) {
+          done = false;
+          statelessPrerequisites.push({from: subject.code, to: nextSubject.code});
+          getFutureSubjects(i, j);
+        }
+      }
+    }
+
+    if (done) {
+      setPrerequisitesPath(statelessPrerequisites);
+      console.log(statelessPrerequisites);
+      return;
     }
   }
 
@@ -91,35 +137,31 @@ function App() {
       <h1>Fluxograma TOP</h1>
       <div id="flowchart-container">
           {flowchart.map((semester, semesterIndex) => (
-            <div className="semester-container">
+            <div className="semester-container" key={semesterIndex}>
               <h2>{semesterIndex+1}º Semestre TOP</h2>
               {semester.map((subject, subjectIndex) => (
-                <>
                   <div
+                    key={subject.code}
                     className={`${subject.code} subject-container`}
                     onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
                     onMouseLeave={() => setPrerequisitesPath([])}
                   >
-                    <span>{subject.name}</span>
+                    <span>{subject.code} - {subject.name} [{semesterIndex},{subjectIndex}]</span>
                   </div>
-                  {subject.prerequisites && (
-                    <>
-                      {subject.prerequisites.map(prerequisite => (
-                        <SteppedLineTo 
-                        from={prerequisite} 
-                        to={subject.code} 
-                        fromAnchor="100% center"
-                        toAnchor="0% center"
-                        orientation="h"
-                        borderColor={colors[subjectIndex]}
-                        borderWidth={2}
-                        />
-                      ))}
-                    </>
-                  )}
-                </>
               ))}
             </div>
+          ))}
+          {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
+            <SteppedLineTo 
+            key={prerequisiteIndex}
+            from={prerequisite.from} 
+            to={prerequisite.to} 
+            fromAnchor="100% center"
+            toAnchor="0% center"
+            orientation="h"
+            borderColor={colors[prerequisiteIndex]}
+            borderWidth={2}
+            />
           ))}
       </div>
     </div>
