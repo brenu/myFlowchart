@@ -2,16 +2,51 @@
     display: flex;
 }
 
+.pageTitle{
+    color: black;
+}
+
 .semester-container {
     display: flex;
     flex-direction: column;
-    width: 500px;
+    align-items: center;
+    width: 250px;
+}
+
+.semester-title{
+    color: #0D1321;
+    font-weight: 300;
 }
 
 .subject-container {
-    padding: 10px;
+    align-items: center;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 70px;
+    justify-content: center;
     margin: 10px 20px;
-    background-color: #777;
+    padding: 10px;
+    width: 140px;
     z-index: 2;
-    width: 100px;
+    transition: all .05s ease-in;
+}
+
+.subject-container:hover{
+    cursor: pointer;
+}
+
+.subject-code{
+    font-size: x-small;
+    font-weight: 400;
+    margin: 0;
+    text-align: center;
+}
+
+.subject-name{
+    font-size: small;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }

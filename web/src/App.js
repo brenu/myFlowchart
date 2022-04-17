@@ -1,13 +1,22 @@
 import './App.css';
 import { SteppedLineTo } from 'react-lineto';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import {useState, useEffect} from 'react';
 
 import "./styles.css";
 
 function App() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
+
+  let matrix = new Array(11);
+  for(let i=0; i<11; ++i) matrix[i] = new Array(11);
+  for(let i=0; i<11; ++i) matrix[i].fill(0);
+  const [subjectsState, setSubjectsState] = useState(matrix);
+  const subjectBgColor = [
+    "#F4F5FF",
+    "#FFBABA",
+    "#7D83FF"
+  ];
 
   const colors = [
     "#F55",
@@ -19,6 +28,19 @@ function App() {
     "#FF6",
     "#777"
   ];
+
+  let romanNumbers = {
+    1: 'I',
+    2: 'II',
+    3: 'III',
+    4: 'IV',
+    5: 'V',
+    6: 'VI',
+    7: 'VII',
+    8: 'VIII',
+    9: 'IX',
+    10: 'X',
+  }
 
   let statelessPrerequisites = [];
 
@@ -66,6 +88,14 @@ function App() {
     getPreviousSubjects(semesterIndex, subjectIndex);
     getFutureSubjects(semesterIndex, subjectIndex);
     // console.log(semesterIndex, subjectIndex);
+  }
+
+  function updateSubjectsState(semesterIndex, subjectIndex){
+    //O state update não tá funcionando adequadamente
+    //o update ocorre apenas quando o mouse é tirado do btn D:
+    let v = (subjectsState[semesterIndex][subjectIndex] + 1)%3;
+    subjectsState[semesterIndex][subjectIndex] = v;
+    setSubjectsState(subjectsState);
   }
 
   function getPreviousSubjects(semesterIndex, subjectIndex) {
@@ -134,33 +164,46 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Fluxograma TOP</h1>
+      <h1 className="pageTitle">Fluxograma TOP</h1>
       <div id="flowchart-container">
           {flowchart.map((semester, semesterIndex) => (
             <div className="semester-container" key={semesterIndex}>
-              <h2>{semesterIndex+1}º Semestre TOP</h2>
+              <h2 className="semester-title">{romanNumbers[semesterIndex+1]}</h2>
               {semester.map((subject, subjectIndex) => (
                   <div
                     key={subject.code}
                     className={`${subject.code} subject-container`}
                     onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
                     onMouseLeave={() => setPrerequisitesPath([])}
+                    onClick={() => updateSubjectsState(semesterIndex, subjectIndex)}
+                    style={{
+                      color:(subjectsState[semesterIndex][subjectIndex]===0?"#0D1321":"#FFFBFE"),
+                      backgroundColor: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
+                    }}
                   >
-                    <span>{subject.code} - {subject.name} [{semesterIndex},{subjectIndex}]</span>
+                    <p className="subject-code">{subject.code}</p>
+                    <p className="subject-name">{subject.name}</p>
+                    <p 
+                      className="subject-code"
+                      style={{
+                        color: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
+                      }}
+                      >.</p>
+                    {/* <span>{subjectsState[semesterIndex][subjectIndex]}</span> */}
                   </div>
               ))}
             </div>
           ))}
           {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
             <SteppedLineTo 
-            key={prerequisiteIndex}
-            from={prerequisite.from} 
-            to={prerequisite.to} 
-            fromAnchor="100% center"
-            toAnchor="0% center"
-            orientation="h"
-            borderColor={colors[prerequisiteIndex]}
-            borderWidth={2}
+              key={prerequisiteIndex}
+              from={prerequisite.from} 
+              to={prerequisite.to} 
+              fromAnchor="100% center"
+              toAnchor="0% center"
+              orientation="h"
+              borderColor={colors[prerequisiteIndex]}
+              borderWidth={2}
             />
           ))}
       </div>
