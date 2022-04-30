@@ -87,15 +87,14 @@ function App() {
   function updatePrerequisitesPath(semesterIndex, subjectIndex) {
     getPreviousSubjects(semesterIndex, subjectIndex);
     getFutureSubjects(semesterIndex, subjectIndex);
-    // console.log(semesterIndex, subjectIndex);
   }
 
   function updateSubjectsState(semesterIndex, subjectIndex){
-    //O state update não tá funcionando adequadamente
-    //o update ocorre apenas quando o mouse é tirado do btn D:
+    const newSubjects = [...subjectsState];
+
     let v = (subjectsState[semesterIndex][subjectIndex] + 1)%3;
-    subjectsState[semesterIndex][subjectIndex] = v;
-    setSubjectsState(subjectsState);
+    newSubjects[semesterIndex][subjectIndex] = v;
+    setSubjectsState(newSubjects);
   }
 
   function getPreviousSubjects(semesterIndex, subjectIndex) {
