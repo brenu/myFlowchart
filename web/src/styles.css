@@ -1,9 +1,67 @@
-#flowchart-container {
-    display: flex;
+body {
+    --bg-primary: #FFFBFE;
+    --bg-secondary: #7D83FF;
+    --subject-done: #7D83FF;
+    --subject-doing: #FFBABA;
+    --subject-todo: #F4F5FF;
+    --text-primary: #000000;
+    --text-secondary: #7D83FF;
 }
 
-.pageTitle{
+#flowchart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    flex: 0.2;
+
+    padding: 20px 5vw;
+}
+
+.page-header > * {
+    width: 100%;
+}
+
+.user-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-self: flex-start;
+
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-secondary);
+
+    margin-bottom: 20px;
+}
+
+.user-container span {
+    margin-left: 10px;
+}
+
+.page-title{
     color: black;
+    text-align: center;
+}
+
+#semesters-container {
+    display: flex;
+    justify-content: center;
+    flex: 0.1;
+    max-width: 100vw;
+    overflow: auto;
+
+    margin-top: 20px;
 }
 
 .semester-container {
@@ -49,4 +107,16 @@
     margin: 0;
     padding: 0;
     text-align: center;
+}
+
+@media(min-width: 1200px) {
+    .page-header {
+        flex-direction: row;
+    
+        padding: 40px 10vw;
+    }
+
+    .user-container {
+        margin-bottom: 0;
+    }
 }

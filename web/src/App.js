@@ -1,6 +1,6 @@
-import './App.css';
+import {useState, useEffect, useRef} from 'react';
 import { SteppedLineTo } from 'react-lineto';
-import {useState, useEffect} from 'react';
+import { FaUserCircle } from "react-icons/fa";
 
 import "./styles.css";
 
@@ -81,10 +81,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(prerequisitesPath);
+    console.log(statelessPrerequisites);
   }, [prerequisitesPath]);
 
   function updatePrerequisitesPath(semesterIndex, subjectIndex) {
+    statelessPrerequisites = [];
     getPreviousSubjects(semesterIndex, subjectIndex);
     getFutureSubjects(semesterIndex, subjectIndex);
   }
@@ -124,24 +125,15 @@ function App() {
       }
     }
 
-    if (done) {
-      statelessPrerequisites = prerequisitesPath.concat(statelessPrerequisites);
-      setPrerequisitesPath(statelessPrerequisites);
-      return;
-    }
-
     return;
   }
 
   function getFutureSubjects(semesterIndex, subjectIndex) {
-    // console.log("CHAMA")
     let done = true;
     const subject = flowchart[semesterIndex][subjectIndex];
 
     for (let i = semesterIndex+1; i < flowchart.length; i++) {
-      // console.log(i, flowchart.length)
       for (let j = 0; j < flowchart[i].length; j++) {
-        // console.log("aqui =>", i, flowchart[i])
         const nextSubject = flowchart[i][j];
 
         if (nextSubject.prerequisites && 
@@ -156,55 +148,61 @@ function App() {
 
     if (done) {
       setPrerequisitesPath(statelessPrerequisites);
-      console.log(statelessPrerequisites);
       return;
     }
   }
 
   return (
-    <div className="App">
-      <h1 className="pageTitle">Fluxograma TOP</h1>
-      <div id="flowchart-container">
-          {flowchart.map((semester, semesterIndex) => (
-            <div className="semester-container" key={semesterIndex}>
-              <h2 className="semester-title">{romanNumbers[semesterIndex+1]}</h2>
-              {semester.map((subject, subjectIndex) => (
-                  <div
-                    key={subject.code}
-                    className={`${subject.code} subject-container`}
-                    onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
-                    onMouseLeave={() => setPrerequisitesPath([])}
-                    onClick={() => updateSubjectsState(semesterIndex, subjectIndex)}
+    <div id="flowchart-container">
+      <div className="page-header">
+        <div className="user-container">
+          <FaUserCircle size={26} />
+          <span>Cool User</span>
+        </div>
+        <h1 className="page-title">Fluxograma - Ciência da Computação</h1>
+        <div></div>
+      </div>
+      <div id="semesters-container">
+        {flowchart.map((semester, semesterIndex) => (
+          <div className="semester-container" key={semesterIndex}>
+            <h2 className="semester-title">{romanNumbers[semesterIndex+1]}</h2>
+            {semester.map((subject, subjectIndex) => (
+                <div
+                  key={subject.code}
+                  className={`${subject.code} subject-container`}
+                  onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
+                  onMouseLeave={() => setPrerequisitesPath([])}
+                  onBlur={() => setPrerequisitesPath([])}
+                  onClick={() => updateSubjectsState(semesterIndex, subjectIndex)}
+                  style={{
+                    color:(subjectsState[semesterIndex][subjectIndex]===0?"#0D1321":"#FFFBFE"),
+                    backgroundColor: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
+                  }}
+                >
+                  <p className="subject-code">{subject.code}</p>
+                  <p className="subject-name">{subject.name}</p>
+                  <p 
+                    className="subject-code"
                     style={{
-                      color:(subjectsState[semesterIndex][subjectIndex]===0?"#0D1321":"#FFFBFE"),
-                      backgroundColor: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
+                      color: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
                     }}
-                  >
-                    <p className="subject-code">{subject.code}</p>
-                    <p className="subject-name">{subject.name}</p>
-                    <p 
-                      className="subject-code"
-                      style={{
-                        color: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
-                      }}
-                      >.</p>
-                    {/* <span>{subjectsState[semesterIndex][subjectIndex]}</span> */}
-                  </div>
-              ))}
-            </div>
-          ))}
-          {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
-            <SteppedLineTo 
-              key={prerequisiteIndex}
-              from={prerequisite.from} 
-              to={prerequisite.to} 
-              fromAnchor="100% center"
-              toAnchor="0% center"
-              orientation="h"
-              borderColor={colors[prerequisiteIndex]}
-              borderWidth={2}
-            />
-          ))}
+                    >.</p>
+                </div>
+            ))}
+          </div>
+        ))}
+        {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
+          <SteppedLineTo 
+            key={prerequisiteIndex}
+            from={prerequisite.from} 
+            to={prerequisite.to} 
+            fromAnchor="100% center"
+            toAnchor="0% center"
+            orientation="h"
+            borderColor={colors[prerequisiteIndex]}
+            borderWidth={2}
+          />
+        ))}
       </div>
     </div>
   );
