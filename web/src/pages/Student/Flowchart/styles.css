@@ -1,21 +1,7 @@
-body {
-    --bg-primary: #FFFBFE;
-    --bg-secondary: #7D83FF;
-    --subject-done: #7D83FF;
-    --subject-doing: #FFBABA;
-    --subject-todo: #F4F5FF;
-    --text-primary: #000000;
-    --text-secondary: #7D83FF;
-}
-
-#flowchart-container {
-    display: flex;
+#page-container {
     flex-direction: column;
     align-items: stretch;
-    justify-content: center;
-
-    max-width: 100vw;
-    max-height: 100vh;
+    justify-content: stretch;
 }
 
 .page-header {
