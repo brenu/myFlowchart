@@ -55,8 +55,9 @@ body {
 }
 
 #semesters-container {
+    position: relative;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     flex: 0.1;
     max-width: 100vw;
     overflow: auto;
@@ -81,17 +82,22 @@ body {
     border-radius: 20px;
     display: flex;
     flex-direction: column;
-    height: 70px;
+    min-height: 70px;
     justify-content: center;
     margin: 10px 20px;
     padding: 10px;
     width: 140px;
+    -webkit-tap-highlight-color: transparent;
     z-index: 2;
     transition: all .05s ease-in;
 }
 
 .subject-container:hover{
     cursor: pointer;
+}
+
+.subject-container * {
+    user-select: none;
 }
 
 .subject-code{
@@ -107,6 +113,12 @@ body {
     margin: 0;
     padding: 0;
     text-align: center;
+}
+
+@media (min-width: 1200px) {
+    #semesters-container {
+        justify-content: center;
+    }
 }
 
 @media(min-width: 1200px) {

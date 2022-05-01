@@ -46,7 +46,6 @@ function App() {
 
   useEffect(() => {
     async function handleInit() {
-      setTimeout(() => 
       setFlowchart([
         [
           {code: "CET-635", name: "Linguagem de Programação I", summary: "NÃO TE INTERESSA"},
@@ -73,16 +72,11 @@ function App() {
           {code: "CAE-015", name: "Fundamentos de Economia", summary: "NÃO TE INTERESSA"},
           {code: "CET-075", name: "Cálculo Aplicado III", summary: "NÃO TE INTERESSA", prerequisites: ["CET-639"]},
         ],
-      ])
-      , 400);
+      ]);
     }
 
     handleInit();
   }, []);
-
-  useEffect(() => {
-    console.log(statelessPrerequisites);
-  }, [prerequisitesPath]);
 
   function updatePrerequisitesPath(semesterIndex, subjectIndex) {
     statelessPrerequisites = [];
@@ -162,7 +156,7 @@ function App() {
         <h1 className="page-title">Fluxograma - Ciência da Computação</h1>
         <div></div>
       </div>
-      <div id="semesters-container">
+      <div id="semesters-container" className="semesters-container">
         {flowchart.map((semester, semesterIndex) => (
           <div className="semester-container" key={semesterIndex}>
             <h2 className="semester-title">{romanNumbers[semesterIndex+1]}</h2>
@@ -191,16 +185,20 @@ function App() {
             ))}
           </div>
         ))}
+        {/* Whaht about mixing solid and dashed borders, huh? */}
         {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
           <SteppedLineTo 
             key={prerequisiteIndex}
             from={prerequisite.from} 
             to={prerequisite.to} 
-            fromAnchor="100% center"
-            toAnchor="0% center"
+            fromAnchor="right"
+            toAnchor="left"
             orientation="h"
             borderColor={colors[prerequisiteIndex]}
-            borderWidth={2}
+            borderWidth={8}
+            zIndex={10}
+            borderStyle="dashed"
+            within="semesters-container"
           />
         ))}
       </div>
