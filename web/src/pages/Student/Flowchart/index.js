@@ -7,6 +7,9 @@ import "./styles.css";
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState({});
+  const [subjectTimeout, setSubjectTimeout] = useState(null);
 
   let matrix = new Array(11);
   for(let i=0; i<11; ++i) matrix[i] = new Array(11);
@@ -146,8 +149,29 @@ function Flowchart() {
     }
   }
 
+  function handleSubjectClicks(e, subject, semesterIndex, subjectIndex) {
+    if (e.detail === 1){
+      setSubjectTimeout(setTimeout(() => {
+        setSelectedSubject(subject);
+        setShowModal(showModal => !showModal);
+      }, 350));
+    } else if (e.detail === 2) {
+      clearTimeout(subjectTimeout);
+      updateSubjectsState(semesterIndex, subjectIndex);
+    }
+  }
+
   return (
     <div id="page-container">
+      {showModal && (
+        <div id="subject-modal-container" onClick={() => setShowModal(!showModal)}>
+          <div id="subject-modal" onClick={e => e.stopPropagation()}>
+            <span>{selectedSubject.code}</span>
+            <h3>{selectedSubject.name}</h3>
+            <p>{selectedSubject.summary}</p>
+          </div>
+        </div>
+      )}
       <div className="page-header">
         <div className="user-container">
           <FaUserCircle size={26} />
@@ -167,7 +191,7 @@ function Flowchart() {
                   onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
                   onMouseLeave={() => setPrerequisitesPath([])}
                   onBlur={() => setPrerequisitesPath([])}
-                  onClick={() => updateSubjectsState(semesterIndex, subjectIndex)}
+                  onClick={(e) => handleSubjectClicks(e, subject, semesterIndex, subjectIndex)}
                   style={{
                     color:(subjectsState[semesterIndex][subjectIndex]===0?"#0D1321":"#FFFBFE"),
                     backgroundColor: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
@@ -196,7 +220,7 @@ function Flowchart() {
             orientation="h"
             borderColor={colors[prerequisiteIndex]}
             borderWidth={8}
-            zIndex={10}
+            zIndex={2}
             borderStyle="dashed"
             within="semesters-container"
           />
