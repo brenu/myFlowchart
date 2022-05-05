@@ -1,6 +1,7 @@
 *, button, input {
   margin: 0;
   padding: 0;
+  outline: none;
 }
 
 body {
@@ -58,4 +59,59 @@ button {
 
   padding: 10px;
   cursor: pointer;
+}
+
+form {
+  max-width: 500px;
+  width: 90%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+form > * {
+  margin-bottom: 20px;
+}
+
+form input {
+  background: #F4F5FF;
+  padding: 20px;
+  font-size: 14pt;
+
+  border: none;
+  outline: none;
+}
+
+form input::placeholder {
+  color:#868EA4;
+}
+
+form textarea {
+  background: #F4F5FF;
+  padding: 20px;
+  font-size: 12pt;
+  height: 200px;
+
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+form select {
+  background: #F4F5FF;
+  padding: 20px;
+  font-size: 12pt;
+  height: 200px;
+
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+form label {
+  font-family: 'Londrina Solid', cursive;
+  color: #444;
+  font-size: 14pt;
 }
