@@ -52,7 +52,7 @@
     text-align: justify;
 }
 
-.page-header {
+#page-header {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -62,11 +62,11 @@
     padding: 20px 5vw;
 }
 
-.page-header > * {
+#page-header > * {
     width: 100%;
 }
 
-.user-container {
+#user-container {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -79,7 +79,7 @@
     margin-bottom: 20px;
 }
 
-.user-container span {
+#user-container span {
     margin-left: 10px;
 }
 
@@ -156,13 +156,13 @@
 }
 
 @media(min-width: 1200px) {
-    .page-header {
+    #page-header {
         flex-direction: row;
     
         padding: 40px 10vw;
     }
 
-    .user-container {
+    #user-container {
         margin-bottom: 0;
     }
 }

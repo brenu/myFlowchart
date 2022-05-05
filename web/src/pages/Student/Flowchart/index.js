@@ -172,8 +172,8 @@ function Flowchart() {
           </div>
         </div>
       )}
-      <div className="page-header">
-        <div className="user-container">
+      <div id="page-header">
+        <div id="user-container">
           <FaUserCircle size={26} />
           <span>Cool User</span>
         </div>

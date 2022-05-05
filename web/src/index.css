@@ -12,6 +12,7 @@ body {
   --text-primary: #000000;
   --text-secondary: #7D83FF;
   --text-tertiary: #FFFBFE;
+  --text-gray: #565656;
 }
 
 body {
@@ -45,4 +46,16 @@ code {
 
 h1, h2, h3, h4, h5, button {
   font-family: 'Londrina Solid', cursive;
+}
+
+button {
+  border: none;
+  background: var(--bg-secondary);
+  
+  color: var(--text-tertiary);
+  font-size: 16pt;
+  font-weight: normal;
+
+  padding: 10px;
+  cursor: pointer;
 }
