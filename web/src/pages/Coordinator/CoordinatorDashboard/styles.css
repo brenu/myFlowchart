@@ -1,0 +1,10 @@
+#admin-dashboard-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    font-size: 42pt;
+    color: var(--text-secondary);
+}

@@ -13,7 +13,13 @@ function Login() {
     function handleSubmit(e) {
         e.preventDefault();
 
-        navigate("/student/flowchart");
+        localStorage.setItem("myFlowchart@auth", username.charAt(0).toUpperCase() + username.slice(1));
+
+        if (username === "student") {
+            navigate("/student/flowchart");
+        } else if (username === "coordinator")  {
+            navigate("/coordinator/dashboard");
+        }
     }
 
     return (
@@ -42,7 +48,7 @@ function Login() {
                 </div>
                 <div id="banner-container">
                     <h1>Bem-vindo ao <span>MyFlowchart</span></h1>
-                    <img src={PageBanner} alt="" srcset=""/>
+                    <img src={PageBanner}/>
                 </div>
             </div>
         </div>
