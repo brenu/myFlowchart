@@ -157,7 +157,7 @@
 
 @media(min-width: 1200px) {
     #page-header {
-        flex-direction: row;
+        /* flex-direction: row; */
     
         padding: 40px 10vw;
     }
