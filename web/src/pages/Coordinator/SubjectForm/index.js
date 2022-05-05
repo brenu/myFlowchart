@@ -131,6 +131,12 @@ function SubjectForm() {
                 }
             }
 
+            if (parsedSubjects[semesterIndex].length === 0) {
+                parsedSubjects.splice(semesterIndex);
+            }
+
+            console.log(parsedSubjects[semesterIndex], semesterIndex);
+
             parsedSubjects[semester].push({
                 code,
                 name,
@@ -162,6 +168,33 @@ function SubjectForm() {
         setPrerequisites([...prerequisites, subjectCode]);
     }
 
+    function handleDeleting() {
+        if (window.confirm("Tem certeza?")) {
+            let semesterIndex = 0;
+
+            const parsedSubjects = subjects.map((semester, index) => {
+                return semester.map(subject => {
+                    if (subject.code !== params.id) {
+                        return subject
+                    }
+
+                    semesterIndex = index;
+                    return;
+                }).filter(item => item !== undefined);
+            })
+
+            if (parsedSubjects[semesterIndex].length === 0) {
+                parsedSubjects.splice(semesterIndex);
+            }
+
+            console.log(parsedSubjects[semesterIndex], semesterIndex);
+
+            localStorage.setItem("myFlowchart@flowchart", JSON.stringify(parsedSubjects));
+            alert("Disciplina removida com sucesso!");
+            navigate("/coordinator/dashboard");
+        }
+    }
+
     return (
         <div id="page-container">
             <div id="subject-form-container">
@@ -169,6 +202,11 @@ function SubjectForm() {
                     <button onClick={() => navigate("/coordinator/dashboard")}>
                         <FaTimes />
                     </button>
+                    {params.id && (
+                        <button onClick={() => handleDeleting()}>
+                            Deletar
+                        </button>
+                    )}
                 </div>
                 <form onSubmit={handleSubmit}>
                     

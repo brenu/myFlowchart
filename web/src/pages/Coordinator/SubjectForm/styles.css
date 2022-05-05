@@ -12,6 +12,7 @@
 #subject-form-container #page-header {
     max-width: 500px;
     width: 90%;
+    flex-direction: row;
     align-items: flex-start;
     
     padding: 0;
@@ -26,6 +27,9 @@
     color: var(--bg-secondary);
     width: min-content;
     padding: 10px 20px;
+
+    display: flex;
+    align-items: center;
 }
 
 #subject-form-container .prerequisites-container .semester-button {
