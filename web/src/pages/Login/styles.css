@@ -1,4 +1,4 @@
-#login-page-content {
+#login-page-content{
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -7,7 +7,7 @@
     min-height: 100vh;
 }
 
-#login-container {
+#login-container{
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -15,28 +15,28 @@
     justify-content: center;
 }
 
-#login-container h2 {
+#login-container h2{
     font-size: 40pt;
 
     align-self: stretch;
     text-align: left;
 }
 
-#login-container p:first-of-type {
+#login-container p:first-of-type{
     color: #868EA4;
     text-align: justify;
 }
 
-#login-container span {
+#login-container span{
     color: #868EA4;
     font-weight: 300;
 }
 
-#login-container span:first-of-type {
+#login-container span:first-of-type{
     margin-bottom: 40px;
 }
 
-#login-container form button {
+#login-container form button{
     border: none;
     background: var(--bg-secondary);
     
@@ -48,7 +48,7 @@
     cursor: pointer;
 }
 
-#banner-container {
+#banner-container{
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -57,7 +57,7 @@
     background: #7D83FF;
 }
 
-#banner-container h1 {
+#banner-container h1{
     color: var(--text-tertiary);
     font-size: 36pt;
     
@@ -66,22 +66,54 @@
     margin-bottom: 20px;
 }
 
-#banner-container h1 span {
+#banner-container h1 span{
     font-size: 40pt;
 }
 
-#banner-container img {
+#banner-container img{
     max-width: 80%;
 }
 
-@media(min-width: 1200px) {
-    #login-container {
+.focused-field{
+    outline: 2px solid #7D83FF;
+}
+
+#create-accout-link{
+    color: red;
+    background-color: red;
+}
+
+#invalid-login-msg{
+    opacity: 1;
+    transition: opacity 0.3s;
+    display: flex;
+    justify-content: center;
+    padding: 25px;
+    
+    font-size: 14pt;
+    font-weight: normal;
+    justify-content: space-around;
+    background-color: #FFDBDB;
+}
+
+#fade-out{
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#invalid-login-msg > p{
+    color: black !important;
+}
+
+
+@media(min-width: 1200px){
+    #login-container{
         flex: 0.5;
 
         width: 100%;
     }
 
-    #banner-container {
+    #banner-container{
         flex: 0.5;
 
         display: flex;

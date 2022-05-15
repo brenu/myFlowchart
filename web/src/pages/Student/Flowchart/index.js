@@ -175,12 +175,7 @@ function Flowchart() {
                 >
                   <p className="subject-code">{subject.code}</p>
                   <p className="subject-name">{subject.name}</p>
-                  <p 
-                    className="subject-code"
-                    style={{
-                      color: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
-                    }}
-                    >.</p>
+                  <p className="subject-code hidden">.</p>
                 </div>
             ))}
           </div>

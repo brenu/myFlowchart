@@ -149,6 +149,10 @@
     text-align: center;
 }
 
+.hidden{
+    visibility: hidden;
+}
+
 @media (min-width: 1200px) {
     #semesters-container {
         justify-content: center;
