@@ -23,3 +23,16 @@ import Route from '@ioc:Adonis/Core/Route'
 Route.get('/', async () => {
   return { hello: 'world' }
 })
+
+Route.post('login', async ({auth, request, response}) => {
+  try {
+    const username = request.input('username');
+    const password = request.input('password');
+
+    const result = await auth.use('api').attempt(username, password);
+
+    return response.json(result);
+  } catch (error) {
+    return response.status(400).json({message: "Os dados não coincidem"});
+  }
+});
