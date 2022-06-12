@@ -1,21 +1,24 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
-export default class StudentFlowchart extends BaseModel {
+export default class Subject extends BaseModel {
   @column({ isPrimary: true })
   public id: number
-
-  @column()
-  public student_id: number
 
   @column()
   public flowchart_id: number
 
   @column()
-  public is_public: boolean
+  public semester: number
 
   @column()
-  public has_public_comments: boolean
+  public name: string
+
+  @column()
+  public code: string
+
+  @column()
+  public summary: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

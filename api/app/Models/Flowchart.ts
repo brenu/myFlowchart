@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, BelongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import User from './user'
+import User from './User'
 
 export default class Flowchart extends BaseModel {
   @column({ isPrimary: true })
