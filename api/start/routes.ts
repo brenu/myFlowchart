@@ -38,3 +38,4 @@ Route.post('login', async ({auth, request, response}) => {
 });
 
 Route.post('student', "StudentsController.store");
+Route.post('coordinator', "CoordinatorsController.store");
