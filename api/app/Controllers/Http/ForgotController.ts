@@ -56,7 +56,6 @@ export default class ForgotController {
         const user = await User.findBy("rememberMeToken", token);
 
         if (user) {
-          console.log(user)
           user.password = bodyData.password;
           user.rememberMeToken = "";
           await user.save();
