@@ -36,3 +36,5 @@ Route.post('login', async ({auth, request, response}) => {
     return response.status(400).json({message: "Os dados não coincidem"});
   }
 });
+
+Route.post('student', "StudentsController.store");
