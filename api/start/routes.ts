@@ -37,5 +37,8 @@ Route.post('login', async ({auth, request, response}) => {
   }
 });
 
+Route.post('forgot', "ForgotController.store");
+Route.put('reset/:token', "ForgotController.update");
+
 Route.post('student', "StudentsController.store");
 Route.post('coordinator', "CoordinatorsController.store");
