@@ -61,7 +61,7 @@ export default class AuthMiddleware {
    * Handle request
    */
   public async handle (
-    { auth }: HttpContextContract,
+    { auth, request }: HttpContextContract,
     next: () => Promise<void>,
     customGuards: (keyof GuardsList)[]
   ) {
@@ -70,7 +70,12 @@ export default class AuthMiddleware {
      * the config file
      */
     const guards = customGuards.length ? customGuards : [auth.name]
-    await this.authenticate(auth, guards)
+    const isAuthenticated = await this.authenticate(auth, guards)
+
+    if(isAuthenticated) {
+      request.session_user = await auth.use(guards[0]).authenticate()
+    }
+
     await next()
   }
 }
