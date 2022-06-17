@@ -19,7 +19,8 @@ export default class Flowchart extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(() => User, {
-    foreignKey: 'coordinator_id'
+    foreignKey: 'coordinator_id',
+    localKey: 'id'
   })
   public coordinator: BelongsTo<typeof User>
 }
