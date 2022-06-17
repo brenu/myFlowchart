@@ -8,6 +8,7 @@ export default class StudentSubjects extends BaseSchema {
       table.increments('id')
       table.integer('student_id').notNullable()
       table.integer('subject_id').notNullable()
+      table.enu('status', ['todo','doing','done']).defaultTo('todo')
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
