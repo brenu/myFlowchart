@@ -11,6 +11,10 @@ export default class StudentSubject extends BaseModel {
   @column()
   public subject_id: number
 
+
+  @column()
+  public status: string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

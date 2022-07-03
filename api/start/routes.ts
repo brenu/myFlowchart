@@ -24,7 +24,7 @@ Route.get('/', async () => {
   return { hello: 'world' }
 })
 
-Route.post('login', async ({auth, request, response}) => {
+Route.post('login', async ({ auth, request, response }) => {
   try {
     const username = request.input('username');
     const password = request.input('password');
@@ -33,7 +33,7 @@ Route.post('login', async ({auth, request, response}) => {
 
     return response.json(result);
   } catch (error) {
-    return response.status(400).json({message: "Os dados não coincidem"});
+    return response.status(400).json({ message: "Os dados não coincidem" });
   }
 });
 
@@ -44,3 +44,4 @@ Route.post('student', "StudentsController.store");
 Route.post('coordinator', "CoordinatorsController.store");
 
 Route.get('student/:flowchart-id', "StudentsController.show").middleware('auth:api');
+Route.put('student-subject/:subject-id', "StudentSubjectsController.update").middleware('auth:api');
