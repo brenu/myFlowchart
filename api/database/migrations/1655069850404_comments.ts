@@ -3,11 +3,12 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class Comments extends BaseSchema {
   protected tableName = 'comments'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.integer('subject_id').notNullable()
       table.integer('owner_id').notNullable()
+      table.string('content').notNullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
@@ -19,7 +20,7 @@ export default class Comments extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }
