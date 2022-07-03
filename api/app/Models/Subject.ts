@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { afterCreate, BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import StudentFlowchart from './StudentFlowchart'
+import StudentSubject from './StudentSubject'
 
 export default class Subject extends BaseModel {
   @column({ isPrimary: true })
@@ -25,4 +27,17 @@ export default class Subject extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @afterCreate()
+  public static async applyToStudents(subject: Subject) {
+    const students = await StudentFlowchart.query()
+      .where("flowchart_id", subject.flowchart_id);
+
+    const studentSubjects = students.map((student) => ({
+      student_id: student.id,
+      subject_id: subject.id
+    }));
+
+    await StudentSubject.createMany(studentSubjects);
+  }
 }

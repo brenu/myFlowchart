@@ -47,3 +47,15 @@ Route.get('student/:flowchart-id', "StudentsController.show").middleware('auth:a
 Route.put('student-subject/:subject-id', "StudentSubjectsController.update").middleware('auth:api');
 Route.get('student-flowcharts', "StudentSubjectsController.index").middleware('auth:api');
 Route.post('comments', "CommentsController.store").middleware('auth:api');
+
+Route.post('coordinator/subject', 'CoordinatorSubjectsController.store')
+  .middleware('auth:api')
+  .middleware(async ({ request, response }, next) => {
+    const user = request.session_user;
+
+    if (!user || user.role !== "coordinator") {
+      return response.status(403);
+    }
+
+    await next();
+  });
