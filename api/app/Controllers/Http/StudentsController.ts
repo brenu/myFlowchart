@@ -75,7 +75,7 @@ export default class StudentsController {
         for (let flowchart of flowcharts) {
           if (flowchart.id === parseInt(flowchart_id)) {
             const subjects = await Database.rawQuery(`SELECT
-              subjects.id, name, code, summary
+              subjects.id, name, code, summary, status
               FROM subjects
               INNER JOIN student_subjects ON subjects.id = student_subjects.subject_id
               WHERE student_subjects.student_id = ${user.id}
