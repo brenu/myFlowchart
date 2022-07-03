@@ -42,3 +42,5 @@ Route.put('reset/:token', "ForgotController.update");
 
 Route.post('student', "StudentsController.store");
 Route.post('coordinator', "CoordinatorsController.store");
+
+Route.get('student/:flowchart-id', "StudentsController.show").middleware('auth:api');
