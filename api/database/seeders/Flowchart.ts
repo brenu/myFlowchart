@@ -4,9 +4,9 @@ import StudentFlowchart from 'App/Models/StudentFlowchart'
 import { UserFactory } from 'Database/factories'
 
 export default class FlowchartSeeder extends BaseSeeder {
-  public static developmentOnly = true  
+  public static developmentOnly = true
 
-  public async run () {
+  public async run() {
     const firstCoordinator = await UserFactory
       .merge({
         username: "admin",
@@ -15,18 +15,18 @@ export default class FlowchartSeeder extends BaseSeeder {
       })
       .create()
 
-    const firstFlowchart = await Flowchart.create({
+    await Flowchart.create({
       coordinator_id: firstCoordinator.id,
       name: "Ciência da Computação"
     });
 
-    const firstStudents = await UserFactory.createMany(10)
+    // const firstStudents = await UserFactory.createMany(10)
 
-    await StudentFlowchart.createMany(firstStudents.map(student => {
-      return {
-        student_id: student.id,
-        flowchart_id: firstFlowchart.id
-      }
-    }));
+    // await StudentFlowchart.createMany(firstStudents.map(student => {
+    //   return {
+    //     student_id: student.id,
+    //     flowchart_id: firstFlowchart.id
+    //   }
+    // }));
   }
 }

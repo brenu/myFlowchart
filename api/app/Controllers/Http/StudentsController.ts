@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import { schema, rules } from '@ioc:Adonis/Core/Validator';
 import Database from '@ioc:Adonis/Lucid/Database';
+import Flowchart from 'App/Models/Flowchart';
 import StudentFlowchart from 'App/Models/StudentFlowchart';
 import Subject from 'App/Models/Subject';
 import User from 'App/Models/User';
@@ -41,7 +42,7 @@ export default class StudentsController {
 
       if (flowchartIds && flowchartIds.length) {
         for (let id of flowchartIds) {
-          const flowchart = await StudentFlowchart.find(id)
+          const flowchart = await Flowchart.find(id)
 
           if (flowchart) {
             StudentFlowchart.create({
