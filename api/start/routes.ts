@@ -45,3 +45,4 @@ Route.post('coordinator', "CoordinatorsController.store");
 
 Route.get('student/:flowchart-id', "StudentsController.show").middleware('auth:api');
 Route.put('student-subject/:subject-id', "StudentSubjectsController.update").middleware('auth:api');
+Route.get('student-flowcharts', "StudentSubjectsController.index").middleware('auth:api');

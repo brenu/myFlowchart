@@ -1,8 +1,24 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import StudentFlowchart from 'App/Models/StudentFlowchart';
 import StudentSubject from 'App/Models/StudentSubject';
 
 export default class StudentSubjectsController {
-  public async index({ }: HttpContextContract) { }
+  public async index({ request, response }: HttpContextContract) {
+    const user = request.session_user;
+
+    if (user) {
+      const flowcharts = await StudentFlowchart.query()
+        .innerJoin("flowcharts", "flowcharts.id", "student_flowcharts.flowchart_id")
+        .where("student_id", user.id)
+        .select("student_flowcharts.flowchart_id", "flowcharts.name");
+
+      return response.status(200).json(flowcharts.map(
+        flowchart => ({ ...flowchart.$original, name: flowchart.$extras.name })
+      ));
+    }
+
+    return response.status(404);
+  }
 
   public async store({ }: HttpContextContract) { }
 
