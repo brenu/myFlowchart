@@ -43,4 +43,45 @@ export default class CommentsController {
 
         return response.status(404);
     }
+
+    public async destroy({ request, response }: HttpContextContract) {
+        const user = request.session_user;
+
+        const comment_id = request.param("comment-id");
+
+        if (user) {
+            const comment = await Comment.find(comment_id);
+
+            if (!comment) {
+                return response.status(404);
+            }
+
+            const studentSubject = await StudentSubject.query()
+                .innerJoin("subjects", "subjects.id", "student_subjects.subject_id")
+                .where("student_id", user.id)
+                .andWhere("subject_id", comment.subject_id)
+                .first();
+
+            if (!studentSubject) {
+                return response.status(404);
+            }
+
+            const flowchart_id = studentSubject.$extras.flowchart_id;
+
+            const studentFlowchart = await StudentFlowchart.query()
+                .where("student_id", user.id)
+                .andWhere("flowchart_id", flowchart_id)
+                .first();
+
+            if (!studentFlowchart || comment.owner_id !== studentFlowchart.id) {
+                return response.status(404);
+            }
+
+            await comment.delete();
+
+            return response.status(204);
+        }
+
+        return response.status(404);
+    }
 }
