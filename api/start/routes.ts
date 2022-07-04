@@ -61,3 +61,6 @@ Route.post('coordinator/subject', 'CoordinatorSubjectsController.store')
 
     await next();
   });
+
+Route.get('student/privacy/:flowchart-id', 'PrivacySettingsController.show').middleware('auth:api');
+Route.put('student/privacy/:flowchart-id', 'PrivacySettingsController.update').middleware('auth:api');
