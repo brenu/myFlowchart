@@ -50,9 +50,13 @@ Route.get('student-flowcharts', "StudentSubjectsController.index").middleware('a
 Route.post('comments', "CommentsController.store").middleware('auth:api');
 Route.delete('comments/:comment-id', "CommentsController.destroy").middleware('auth:api');
 
-Route.post('coordinator/subject', 'CoordinatorSubjectsController.store')
-  .middleware('auth:api')
-  .middleware(async ({ request, response }, next) => {
+Route.group(() => {
+  Route.group(() => {
+
+    Route.post('coordinator/subject', 'CoordinatorSubjectsController.store');
+    Route.put('coordinator/subject/:subject-id', 'CoordinatorSubjectsController.update');
+
+  }).middleware(async ({ request, response }, next) => {
     const user = request.session_user;
 
     if (!user || user.role !== "coordinator") {
@@ -61,6 +65,8 @@ Route.post('coordinator/subject', 'CoordinatorSubjectsController.store')
 
     await next();
   });
+
+}).middleware('auth:api');
 
 Route.get('student/privacy/:flowchart-id', 'PrivacySettingsController.show').middleware('auth:api');
 Route.put('student/privacy/:flowchart-id', 'PrivacySettingsController.update').middleware('auth:api');

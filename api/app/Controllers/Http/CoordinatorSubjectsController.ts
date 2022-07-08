@@ -21,7 +21,6 @@ export default class CoordinatorSubjectsController {
         const newSubjectSchema = schema.create({
           name: schema.string({}, [
             rules.required(),
-            rules.unique({ table: 'subjects', column: 'name' })
           ]),
           code: schema.string({}, [
             rules.required(),
@@ -37,7 +36,6 @@ export default class CoordinatorSubjectsController {
           messages: {
             'name.required': 'O nome é obrigatório',
             'code.required': 'O código é obrigatório',
-            'name.unique': 'Nome não disponível',
             'code.unique': 'Código não disponível',
             'code.maxLength': 'O código deve possuir até {{ options.maxLength }} caracteres',
             'summary.required': 'A descrição é obrigatória',
@@ -80,7 +78,87 @@ export default class CoordinatorSubjectsController {
 
   public async show({ }: HttpContextContract) { }
 
-  public async update({ }: HttpContextContract) { }
+  public async update({ request, response }: HttpContextContract) {
+    const user = request.session_user;
+    const subject_id = request.param("subject-id");
+
+    if (user) {
+      const subject = await Subject.find(subject_id);
+
+      if (!subject) {
+        return response.status(404);
+      }
+
+      const flowchart = await Flowchart.query()
+        .where("id", subject.flowchart_id)
+        .andWhere("coordinator_id", user.id);
+
+      if (!flowchart) {
+        return response.status(404);
+      }
+
+      const subjectSchema = schema.create({
+        name: schema.string({}, [
+          rules.required(),
+        ]),
+        summary: schema.string(),
+        semester: schema.number(),
+      });
+
+      const subjectData = await request.validate({
+        schema: subjectSchema,
+        messages: {
+          'name.required': 'O nome é obrigatório',
+          'summary.required': 'A descrição é obrigatória',
+          'semester.required': 'O semestre é obrigatório',
+        }
+      });
+
+      subject.merge(subjectData);
+      await subject.save();
+
+      const prerequisites = (await request.validate({
+        schema: schema.create({ prerequisites: schema.array().members(schema.string()) })
+      })).prerequisites;
+
+      const validPrerequisites = await Subject.query()
+        .whereIn("code", prerequisites)
+        .andWhere("semester", "<", subject.semester);
+
+      const presentSubjectPrerequisites = await Prerequisite.query()
+        .where("subject_id", subject.id);
+
+      const prerequisitesToBeAdded: object[] = [];
+      for (const prerequisite of validPrerequisites) {
+        if (!presentSubjectPrerequisites.some(item => item.prerequisite_id === prerequisite.id)) {
+          prerequisitesToBeAdded.push({
+            subject_id: subject.id,
+            prerequisite_id: prerequisite.id
+          });
+        }
+      }
+
+      for (const presentSubjectPrerequisite of presentSubjectPrerequisites) {
+        if (!validPrerequisites.some(item => item.id === presentSubjectPrerequisite.prerequisite_id)) {
+          await presentSubjectPrerequisite.delete();
+        }
+      }
+
+      await Prerequisite.createMany(prerequisitesToBeAdded);
+
+      const finalPrerequisites = await Subject.query()
+        .innerJoin("prerequisites", "prerequisites.prerequisite_id", "subjects.id")
+        .where("subject_id", subject.id)
+        .select("code");
+
+      return response.status(200).json({
+        ...subject.$original,
+        prerequisites: finalPrerequisites.map(item => item.code)
+      });
+    }
+
+    return response.status(404);
+  }
 
   public async destroy({ }: HttpContextContract) { }
 }
