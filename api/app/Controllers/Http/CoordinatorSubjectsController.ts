@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Flowchart from 'App/Models/Flowchart';
+import Prerequisite from 'App/Models/Prerequisite';
 import Subject from 'App/Models/Subject';
 
 export default class CoordinatorSubjectsController {
@@ -44,12 +45,27 @@ export default class CoordinatorSubjectsController {
           }
         });
 
+        const prerequisites = (await request.validate({
+          schema: schema.create({ prerequisites: schema.array().members(schema.string()) })
+        })).prerequisites;
+
         const newSubject = await Subject.create({
           ...subjectData,
           flowchart_id: flowchart.id
         });
 
-        return response.status(201).json(newSubject);
+        const validPrerequisites = await Subject.query()
+          .whereIn("code", prerequisites)
+          .andWhere("semester", "<", newSubject.semester);
+
+        const newPrerequisites = validPrerequisites.map(prerequisite => ({ subject_id: newSubject.id, prerequisite_id: prerequisite.id }));
+
+        await Prerequisite.createMany(newPrerequisites);
+
+        return response.status(201).json({
+          ...newSubject.$original,
+          prerequisites: validPrerequisites.map(item => item.code)
+        });
       } catch (error) {
         if (error.messages && error.messages.errors) {
           return response.status(400).json({ message: error.messages.errors[0].message });

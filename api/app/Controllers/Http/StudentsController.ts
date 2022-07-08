@@ -72,7 +72,6 @@ export default class StudentsController {
       const flowcharts = await user.related('flowcharts').query();
 
       if (flowcharts.length) {
-        // console.log(flowcharts);
         for (let flowchart of flowcharts) {
           if (flowchart.id === parseInt(flowchart_id)) {
             const subjects = await Database.rawQuery(`SELECT
