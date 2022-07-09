@@ -5,7 +5,40 @@ import Prerequisite from 'App/Models/Prerequisite';
 import Subject from 'App/Models/Subject';
 
 export default class CoordinatorSubjectsController {
-  public async index({ }: HttpContextContract) { }
+  public async index({ request, response }: HttpContextContract) {
+    const user = request.session_user;
+
+    if (user) {
+      const flowchart = await Flowchart.query()
+        .where("coordinator_id", user.id)
+        .first();
+
+      if (!flowchart) {
+        return response.status(404);
+      }
+
+      const semesters = await Subject.query()
+        .select("semester")
+        .where("flowchart_id", flowchart.id)
+        .andWhere("is_archived", false)
+        .groupBy("semester")
+        .orderBy("semester");
+
+      const subjects: object = {};
+
+      for (let item of semesters) {
+        subjects[item.$original.semester] = await Subject.query()
+          .select(["summary", "name", "semester", "code"])
+          .where("flowchart_id", flowchart.id)
+          .andWhere("semester", item.$original.semester)
+          .andWhere("is_archived", false);
+      }
+
+      return response.status(200).json(subjects);
+    }
+
+    return response.status(404);
+  }
 
   public async store({ request, response }: HttpContextContract) {
     const user = request.session_user;
@@ -160,5 +193,35 @@ export default class CoordinatorSubjectsController {
     return response.status(404);
   }
 
-  public async destroy({ }: HttpContextContract) { }
+  public async destroy({ request, response }: HttpContextContract) {
+    const user = request.session_user;
+    const subject_id = request.param("subject-id");
+
+    if (user) {
+      const subject = await Subject.find(subject_id);
+
+      if (!subject) {
+        return response.status(404);
+      }
+
+      const flowchart = await Flowchart.query()
+        .where("id", subject.flowchart_id)
+        .andWhere("coordinator_id", user.id);
+
+      if (!flowchart) {
+        return response.status(404);
+      }
+
+      subject.is_archived = true;
+      await subject.save();
+
+      await Prerequisite.query()
+        .where("prerequisite_id", subject.id)
+        .delete();
+
+      return response.status(204);
+    }
+
+    return response.status(404);
+  }
 }

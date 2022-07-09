@@ -53,8 +53,10 @@ Route.delete('comments/:comment-id', "CommentsController.destroy").middleware('a
 Route.group(() => {
   Route.group(() => {
 
+    Route.get('coordinator/subject', 'CoordinatorSubjectsController.index');
     Route.post('coordinator/subject', 'CoordinatorSubjectsController.store');
     Route.put('coordinator/subject/:subject-id', 'CoordinatorSubjectsController.update');
+    Route.delete('coordinator/subject/:subject-id', 'CoordinatorSubjectsController.destroy');
 
   }).middleware(async ({ request, response }, next) => {
     const user = request.session_user;

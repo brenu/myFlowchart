@@ -22,6 +22,9 @@ export default class Subject extends BaseModel {
   @column()
   public summary: string
 
+  @column()
+  public is_archived: boolean
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
