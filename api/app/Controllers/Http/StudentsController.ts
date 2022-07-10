@@ -74,25 +74,37 @@ export default class StudentsController {
       if (flowcharts.length) {
         for (let flowchart of flowcharts) {
           if (flowchart.id === parseInt(flowchart_id)) {
-            const subjects = await Database.rawQuery(`SELECT
-              subjects.id, name, code, summary, status
-              FROM subjects
-              INNER JOIN student_subjects ON subjects.id = student_subjects.subject_id
-              WHERE student_subjects.student_id = ${user.id}
-            `);
+            const semesters = await Subject.query()
+              .select("semester")
+              .where("flowchart_id", flowchart.id)
+              .andWhere("is_archived", false)
+              .groupBy("semester")
+              .orderBy("semester");
 
-            for (let subject of subjects.rows) {
-              const prerequisites = await Database.rawQuery(`
-                SELECT code FROM prerequisites
-                INNER JOIN subjects ON subjects.id = prerequisites.prerequisite_id
-                WHERE prerequisites.subject_id = ${subject.id}
-                AND subjects.id != ${subject.id}
-              `);
+            const subjects: object = {};
 
-              subject.prerequisites = await prerequisites.rows.map((prerequisite: Subject) => prerequisite.code);
+            for (let item of semesters) {
+              subjects[item.$original.semester] = (await Database.rawQuery(`SELECT
+                subjects.id, name, code, summary, status, is_archived
+                FROM subjects
+                INNER JOIN student_subjects ON subjects.id = student_subjects.subject_id
+                WHERE student_subjects.student_id = ${user.id}
+                AND semester = ${item.$original.semester}
+              `)).rows;
+
+              for (let subject of subjects[item.$original.semester]) {
+                const prerequisites = await Database.rawQuery(`
+                  SELECT code FROM prerequisites
+                  INNER JOIN subjects ON subjects.id = prerequisites.prerequisite_id
+                  WHERE prerequisites.subject_id = ${subject.id}
+                  AND subjects.id != ${subject.id}
+                `);
+
+                subject.prerequisites = await prerequisites.rows.map((prerequisite: Subject) => prerequisite.code);
+              }
             }
 
-            return response.status(200).json(subjects.rows);
+            return response.status(200).json(subjects);
           }
         }
       }
