@@ -20,9 +20,7 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
-Route.get('/', async () => {
-  return { hello: 'world' }
-})
+Route.get('/flowcharts', 'FlowchartsController.index');
 
 Route.post('login', async ({ auth, request, response }) => {
   try {
@@ -31,7 +29,10 @@ Route.post('login', async ({ auth, request, response }) => {
 
     const result = await auth.use('api').attempt(username, password);
 
-    return response.json(result);
+    return response.json({
+      token: result.token,
+      role: result.user.$original.role
+    });
   } catch (error) {
     return response.status(400).json({ message: "Os dados não coincidem" });
   }

@@ -153,13 +153,15 @@
     visibility: hidden;
 }
 
-@media (min-width: 1200px) {
-    #semesters-container {
-        justify-content: center;
-    }
+.flowchart-page-container #page-header h1 {
+    font-size: 26pt;
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
+    #semesters-container {
+        justify-content: flex-start;
+    }
+
     #page-header {
         /* flex-direction: row; */
     
@@ -168,5 +170,27 @@
 
     #user-container {
         margin-bottom: 0;
+    }
+}
+
+@media(min-width: 800px) {
+    .subject-container {
+        width: 90px;
+    }
+}
+
+@media(min-width: 1100px) {
+    .flowchart-page-container #page-header h1 {
+        font-size: 32pt;
+    }
+}
+
+@media(min-width: 1500px) {
+    .subject-container {
+        width: 140px;
+    }
+
+    .flowchart-page-container #page-header h1 {
+        font-size: 36pt;
     }
 }

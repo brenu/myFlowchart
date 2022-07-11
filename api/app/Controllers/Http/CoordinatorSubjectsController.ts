@@ -1,5 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import Database from '@ioc:Adonis/Lucid/Database';
 import Flowchart from 'App/Models/Flowchart';
 import Prerequisite from 'App/Models/Prerequisite';
 import Subject from 'App/Models/Subject';
@@ -28,10 +29,24 @@ export default class CoordinatorSubjectsController {
 
       for (let item of semesters) {
         subjects[item.$original.semester] = await Subject.query()
-          .select(["summary", "name", "semester", "code"])
+          .select(["id", "summary", "name", "semester", "code"])
           .where("flowchart_id", flowchart.id)
           .andWhere("semester", item.$original.semester)
           .andWhere("is_archived", false);
+
+        for (let [index, subject] of subjects[item.$original.semester].entries()) {
+          subject = subject["$original"];
+
+          const prerequisites = await Database.rawQuery(`
+              SELECT code FROM prerequisites
+              INNER JOIN subjects ON subjects.id = prerequisites.prerequisite_id
+              WHERE prerequisites.subject_id = ${subject.id}
+              AND subjects.id != ${subject.id}
+            `);
+
+          subject["prerequisites"] = prerequisites.rows.map((prerequisite: Subject) => prerequisite.code);
+          subjects[item.$original.semester][index] = subject;
+        }
       }
 
       return response.status(200).json(subjects);

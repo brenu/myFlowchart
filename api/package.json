@@ -59,6 +59,7 @@
     "@adonisjs/mail": "^8.1.2",
     "@adonisjs/repl": "^3.1.10",
     "@types/uuid": "^8.3.4",
+    "cors": "^2.8.5",
     "luxon": "^2.4.0",
     "pg": "^8.7.3",
     "phc-argon2": "^1.1.3",

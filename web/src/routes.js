@@ -7,13 +7,15 @@ import CoordinatorDashboard from "./pages/Coordinator/CoordinatorDashboard";
 
 import { getAuthLevel, isAuthenticated } from './auth';
 import SubjectForm from "./pages/Coordinator/SubjectForm";
+import Register from "./pages/Register";
 
-const PrivateRoute = ({ component: Component, role}) => {
+const PrivateRoute = ({ component: Component, role }) => {
+    console.log(role);
     if (isAuthenticated() && getAuthLevel() === role) {
         return <Component />
     }
 
-    return <Navigate to="/" replace/>;
+    return <Navigate to="/" replace />;
 }
 
 export default function AppRoutes() {
@@ -21,23 +23,24 @@ export default function AppRoutes() {
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
-                
-                {/* Student Routes */}
-                <Route path="/student/flowchart" element={
-                    <PrivateRoute component={Flowchart} role="Student" />
-                }/>
+                <Route path="/register" element={<Register />} />
 
-                
+                {/* Student Routes */}
+                <Route path="/student/flowchart/:id" element={
+                    <PrivateRoute component={Flowchart} role="student" />
+                } />
+
+
                 {/* Coordinator Routes */}
                 <Route path="/coordinator/dashboard" element={
-                    <PrivateRoute component={CoordinatorDashboard} role="Coordinator" />
-                }/>
+                    <PrivateRoute component={CoordinatorDashboard} role="coordinator" />
+                } />
                 <Route path="/coordinator/subject" element={
-                    <PrivateRoute component={SubjectForm} role="Coordinator" />
-                }/>
+                    <PrivateRoute component={SubjectForm} role="coordinator" />
+                } />
                 <Route path="/coordinator/subject/:id" element={
-                    <PrivateRoute component={SubjectForm} role="Coordinator" />
-                }/>
+                    <PrivateRoute component={SubjectForm} role="coordinator" />
+                } />
             </Routes>
         </Router>
     );

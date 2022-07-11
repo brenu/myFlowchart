@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../../services/api";
 
 import "./styles.css";
 
@@ -13,17 +14,22 @@ function SubjectForm() {
     const [name, setName] = useState("");
     const [summary, setSummary] = useState("");
     const [prerequisites, setPrerequisites] = useState([]);
-    const [semester, setSemester] = useState(0);
+    const [semester, setSemester] = useState(1);
 
     useEffect(() => {
-        function handleInit() {
-            const data = JSON.parse(localStorage.getItem("myFlowchart@flowchart"));
-            if (data) {
-                const localSubjects = [];
+        async function handleInit() {
+            const response = await api.get("/coordinator/subject", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                }
+            });
 
-                for (let semester of data) {
-                    semester.show = false;
-                    localSubjects.push(semester);
+            if (response.status === 200) {
+                const localSubjects = {};
+
+                for (let [semester, value] of Object.entries(response.data)) {
+                    value.show = false;
+                    localSubjects[semester] = value;
                 }
 
                 setSubjects(localSubjects);
@@ -33,9 +39,9 @@ function SubjectForm() {
                 return;
             }
 
-            for (let [index, semester] of data.entries()) {
-                const searchResults = semester.filter((subject) => subject.code === params.id);
-
+            for (let [index, semester] of Object.entries(response.data)) {
+                const searchResults = semester.filter((subject) => subject.id === parseInt(params.id));
+                console.log(searchResults, params.id);
                 if (searchResults.length) {
                     setCode(searchResults[0].code);
                     setName(searchResults[0].name);
@@ -57,100 +63,52 @@ function SubjectForm() {
 
         if (!params.id) {
             handleCreation();
-        }else{
+        } else {
             handleEditing();
         }
-
-        alert("Submissão feita com sucesso!")
-        navigate("/coordinator/dashboard");
     }
 
-    function handleCreation() {
-        const localFlowchart = [...subjects];
-
-        if (!localFlowchart[semester]) {
-            localFlowchart[semester] = [];
-        }
-
-        localFlowchart[semester].push({
-            code,
+    async function handleCreation() {
+        const response = await api.post("/coordinator/subject", {
             name,
+            code,
             summary,
+            semester,
             prerequisites
-        });
+        },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                }
+            });
 
-        localStorage.setItem("myFlowchart@flowchart", JSON.stringify(localFlowchart));
+        if (response.status === 201) {
+            alert("Submissão feita com sucesso!");
+            navigate("/coordinator/dashboard");
+        }
     }
 
-    function handleEditing() {
-        let semesterIndex = 0;
-
-        let parsedSubjects = subjects.map((semester, index) => {
-            return semester.map(subject => {
-                if (subject.code === code) {
-                    semesterIndex = index;
-
-                    const realPrerequisites = [];
-
-                    for (let [i, v] of subjects.entries()) {
-                        for (let j of v) {
-                            if (prerequisites.includes(j.code) && i < semester) {
-                                realPrerequisites.push(j.code)
-                            }
-                        }
-                    }
-
-                    return {
-                        code,
-                        name,
-                        summary,
-                        prerequisites: realPrerequisites
-                    };
-                }
-
-                return subject;
-            })
+    async function handleEditing() {
+        const response = await api.put(`/coordinator/subject/${params.id}`, {
+            name,
+            code,
+            summary,
+            semester,
+            prerequisites
+        }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+            }
         });
 
-        
-        if (semesterIndex !== semester) {
-            parsedSubjects[semesterIndex] = parsedSubjects[semesterIndex]
-                .filter(item => item.code !== code);
-
-            if (!parsedSubjects[semester]) {
-                parsedSubjects[semester] = [];
-            }
-
-            const realPrerequisites = [];
-
-            for (let [i, v] of subjects.entries()) {
-                for (let j of v) {
-                    if (prerequisites.includes(j.code) && i < semester) {
-                        realPrerequisites.push(j.code)
-                    }
-                }
-            }
-
-            if (parsedSubjects[semesterIndex].length === 0) {
-                parsedSubjects.splice(semesterIndex);
-            }
-
-            console.log(parsedSubjects[semesterIndex], semesterIndex);
-
-            parsedSubjects[semester].push({
-                code,
-                name,
-                summary,
-                prerequisites: realPrerequisites
-            });
+        if (response.status === 200) {
+            alert("Submissão feita com sucesso!")
+            navigate("/coordinator/dashboard");
         }
-
-
-        localStorage.setItem("myFlowchart@flowchart", JSON.stringify(parsedSubjects));
     }
 
     function handleShowSubjects(semesterIndex) {
-        const newSubjects = [...subjects];
+        const newSubjects = { ...subjects };
         newSubjects[semesterIndex].show = !newSubjects[semesterIndex].show;
 
         setSubjects(newSubjects)
@@ -168,30 +126,18 @@ function SubjectForm() {
         setPrerequisites([...prerequisites, subjectCode]);
     }
 
-    function handleDeleting() {
+    async function handleDeleting() {
         if (window.confirm("Tem certeza?")) {
-            let semesterIndex = 0;
+            const response = await api.delete(`/coordinator/subject/${params.id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                }
+            });
 
-            const parsedSubjects = subjects.map((semester, index) => {
-                return semester.map(subject => {
-                    if (subject.code !== params.id) {
-                        return subject
-                    }
-
-                    semesterIndex = index;
-                    return;
-                }).filter(item => item !== undefined);
-            })
-
-            if (parsedSubjects[semesterIndex].length === 0) {
-                parsedSubjects.splice(semesterIndex);
+            if (response.status === 204) {
+                alert("Disciplina removida com sucesso!");
+                navigate("/coordinator/dashboard");
             }
-
-            console.log(parsedSubjects[semesterIndex], semesterIndex);
-
-            localStorage.setItem("myFlowchart@flowchart", JSON.stringify(parsedSubjects));
-            alert("Disciplina removida com sucesso!");
-            navigate("/coordinator/dashboard");
         }
     }
 
@@ -209,9 +155,9 @@ function SubjectForm() {
                     )}
                 </div>
                 <form onSubmit={handleSubmit}>
-                    
+
                     <label htmlFor="code">Código</label>
-                    <input 
+                    <input
                         type="text"
                         name="code"
                         value={code}
@@ -220,7 +166,7 @@ function SubjectForm() {
                     />
 
                     <label htmlFor="name">Nome</label>
-                    <input 
+                    <input
                         type="text"
                         name="name"
                         value={name}
@@ -229,38 +175,40 @@ function SubjectForm() {
                     />
 
                     <label htmlFor="semester">Semestre</label>
-                    <input 
+                    <input
                         type="number"
                         name="semester"
-                        value={semester+1}
-                        onChange={e => setSemester(e.target.value - 1)}
+                        min="1"
+                        max="20"
+                        value={semester}
+                        onChange={e => setSemester(e.target.value)}
                     />
 
                     <label htmlFor="prerequisites">Pré-requisitos</label>
-                    {subjects.map((formSemester, semesterIndex) => {
-                        if (semesterIndex < semester) {
+                    {Object.keys(subjects).map(formSemester => {
+                        if (formSemester < semester) {
                             return (
-                                <div key={semesterIndex} className="prerequisites-container">
-                                    <button 
+                                <div key={formSemester} className="prerequisites-container">
+                                    <button
                                         type="button"
-                                        className="semester-button" 
-                                        onClick={() => handleShowSubjects(semesterIndex)}
+                                        className="semester-button"
+                                        onClick={() => handleShowSubjects(formSemester)}
                                     >
-                                        <span>{semesterIndex+1}º Semestre</span>
+                                        <span>{formSemester}º Semestre</span>
                                     </button>
-                                    {formSemester.show && (
+                                    {subjects[formSemester].show && (
                                         <div className="semester-subjects">
-                                            {formSemester.map((subject, subjectIndex) => (
-                                            <div key={subject.code} className="subject-radio-container">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={prerequisites.includes(subject.code)}
-                                                    id={subject.code}
-                                                    name={subject.code}
-                                                    onChange={e => handleNewPrerequisites(e, subject.code)}
-                                                />
-                                                <label htmlFor={subject.code}>{subject.code} - {subject.name}</label>
-                                            </div>  
+                                            {subjects[formSemester].map((subject, subjectIndex) => (
+                                                <div key={subject.code} className="subject-radio-container">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={prerequisites.includes(subject.code)}
+                                                        id={subject.code}
+                                                        name={subject.code}
+                                                        onChange={e => handleNewPrerequisites(e, subject.code)}
+                                                    />
+                                                    <label htmlFor={subject.code}>{subject.code} - {subject.name}</label>
+                                                </div>
                                             ))}
                                         </div>
                                     )}
@@ -268,10 +216,10 @@ function SubjectForm() {
                             );
                         }
                     })}
-                    
+
 
                     <label htmlFor="code">Ementa</label>
-                    <textarea 
+                    <textarea
                         type="text"
                         name="summary"
                         value={summary}

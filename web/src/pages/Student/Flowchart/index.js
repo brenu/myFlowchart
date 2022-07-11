@@ -3,6 +3,8 @@ import { SteppedLineTo } from 'react-lineto';
 import { FaUserCircle } from "react-icons/fa";
 
 import "./styles.css";
+import { useParams } from 'react-router-dom';
+import api from '../../../services/api';
 
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
@@ -10,16 +12,10 @@ function Flowchart() {
   const [showModal, setShowModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
   const [subjectTimeout, setSubjectTimeout] = useState(null);
-
+  const { id } = useParams();
   let matrix = new Array(11);
-  for(let i=0; i<11; ++i) matrix[i] = new Array(11);
-  for(let i=0; i<11; ++i) matrix[i].fill(0);
-  const [subjectsState, setSubjectsState] = useState(matrix);
-  const subjectBgColor = [
-    "#F4F5FF",
-    "#FFBABA",
-    "#7D83FF"
-  ];
+  for (let i = 0; i < 11; ++i) matrix[i] = new Array(11);
+  for (let i = 0; i < 11; ++i) matrix[i].fill(0);
 
   const colors = [
     "#F55",
@@ -49,9 +45,16 @@ function Flowchart() {
 
   useEffect(() => {
     async function handleInit() {
-      const localFlowchart = JSON.parse(localStorage.getItem("myFlowchart@flowchart"));
 
-      setFlowchart(localFlowchart);
+      const response = await api.get(`/student/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+        }
+      });
+
+      if (response.status === 200) {
+        setFlowchart(response.data);
+      }
     }
 
     handleInit();
@@ -63,37 +66,58 @@ function Flowchart() {
     getFutureSubjects(semesterIndex, subjectIndex);
   }
 
-  function updateSubjectsState(semesterIndex, subjectIndex){
-    const newSubjects = [...subjectsState];
+  async function updateSubjectsState(semester, subjectIndex) {
+    const newFlowchart = { ...flowchart };
+    const subject = newFlowchart[semester][subjectIndex];
 
-    let v = (subjectsState[semesterIndex][subjectIndex] + 1)%3;
-    newSubjects[semesterIndex][subjectIndex] = v;
-    setSubjectsState(newSubjects);
+    if (subject.status === "todo") {
+      subject.status = "doing"
+    } else if (subject.status === "doing") {
+      subject.status = "done"
+    } else {
+      subject.status = "todo"
+    }
+
+    const response = await api.put(`/student-subject/${subject.id}`, {
+      status: subject.status
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+      }
+    });
+
+    if (response.status === 200) {
+      setFlowchart(newFlowchart);
+    }
   }
 
-  function getPreviousSubjects(semesterIndex, subjectIndex) {
+  function getPreviousSubjects(semester, subjectIndex) {
     let done = true;
-    
-    const subject = flowchart[semesterIndex][subjectIndex];
+
+    const subject = flowchart[semester][subjectIndex];
     const localPrerequisitesPath = [];
 
     let previousSubjects = subject.prerequisites ? subject.prerequisites : [];
 
-    if(subject.prerequisites) {
-      for(let localSubject of subject.prerequisites) {
+    if (subject.prerequisites) {
+      for (let localSubject of subject.prerequisites) {
         if (!statelessPrerequisites.some(item => item.from === localSubject && item.to === subject.code)) {
-          localPrerequisitesPath.push({from:localSubject, to:subject.code})
+          localPrerequisitesPath.push({ from: localSubject, to: subject.code })
         }
       }
     }
 
     statelessPrerequisites = statelessPrerequisites.concat(localPrerequisitesPath);
 
-    for(let i=semesterIndex; i>=0; i--) {
-      for (let j=0; j<flowchart[i].length; j++) {
-        if (previousSubjects.includes(flowchart[i][j].code)) {
-          done = false;
-          getPreviousSubjects(i,j);
+    const semesterKeys = Object.keys(flowchart);
+
+    for (let i = semester; i >= semesterKeys[0]; i--) {
+      if (semesterKeys.includes(i)) {
+        for (let j = 0; j < flowchart[i].length; j++) {
+          if (previousSubjects.includes(flowchart[i][j].code)) {
+            done = false;
+            getPreviousSubjects(i, j);
+          }
         }
       }
     }
@@ -101,20 +125,24 @@ function Flowchart() {
     return;
   }
 
-  function getFutureSubjects(semesterIndex, subjectIndex) {
+  function getFutureSubjects(semester, subjectIndex) {
     let done = true;
-    const subject = flowchart[semesterIndex][subjectIndex];
+    const subject = flowchart[semester][subjectIndex];
 
-    for (let i = semesterIndex+1; i < flowchart.length; i++) {
-      for (let j = 0; j < flowchart[i].length; j++) {
-        const nextSubject = flowchart[i][j];
+    const semesterKeys = Object.keys(flowchart);
 
-        if (nextSubject.prerequisites && 
+    for (let i = semester; i < semesterKeys[semesterKeys.length - 1]; i++) {
+      if (semesterKeys.includes(i)) {
+        for (let j = 0; j < flowchart[i].length; j++) {
+          const nextSubject = flowchart[i][j];
+
+          if (nextSubject.prerequisites &&
             nextSubject.prerequisites.includes(subject.code) &&
             !statelessPrerequisites.some(item => item.from === subject.code && item.to === nextSubject.code)) {
-          done = false;
-          statelessPrerequisites.push({from: subject.code, to: nextSubject.code});
-          getFutureSubjects(i, j);
+            done = false;
+            statelessPrerequisites.push({ from: subject.code, to: nextSubject.code });
+            getFutureSubjects(i, j);
+          }
         }
       }
     }
@@ -125,20 +153,20 @@ function Flowchart() {
     }
   }
 
-  function handleSubjectClicks(e, subject, semesterIndex, subjectIndex) {
-    if (e.detail === 1){
+  function handleSubjectClicks(e, subject, semester, subjectIndex) {
+    if (e.detail === 1) {
       setSubjectTimeout(setTimeout(() => {
         setSelectedSubject(subject);
         setShowModal(showModal => !showModal);
       }, 350));
     } else if (e.detail === 2) {
       clearTimeout(subjectTimeout);
-      updateSubjectsState(semesterIndex, subjectIndex);
+      updateSubjectsState(semester, subjectIndex);
     }
   }
 
   return (
-    <div id="page-container">
+    <div id="page-container" class="flowchart-page-container">
       {showModal && (
         <div id="subject-modal-container" onClick={() => setShowModal(!showModal)}>
           <div id="subject-modal" onClick={e => e.stopPropagation()}>
@@ -157,35 +185,36 @@ function Flowchart() {
         <div></div>
       </div>
       <div id="semesters-container" className="semesters-container">
-        {flowchart.map((semester, semesterIndex) => (
-          <div className="semester-container" key={semesterIndex}>
-            <h2 className="semester-title">{romanNumbers[semesterIndex+1]}</h2>
-            {semester.map((subject, subjectIndex) => (
-                <div
-                  key={subject.code}
-                  className={`${subject.code} subject-container`}
-                  onMouseEnter={() => updatePrerequisitesPath(semesterIndex, subjectIndex)}
-                  onMouseLeave={() => setPrerequisitesPath([])}
-                  onBlur={() => setPrerequisitesPath([])}
-                  onClick={(e) => handleSubjectClicks(e, subject, semesterIndex, subjectIndex)}
-                  style={{
-                    color:(subjectsState[semesterIndex][subjectIndex]===0?"#0D1321":"#FFFBFE"),
-                    backgroundColor: subjectBgColor[subjectsState[semesterIndex][subjectIndex]]
-                  }}
-                >
-                  <p className="subject-code">{subject.code}</p>
-                  <p className="subject-name">{subject.name}</p>
-                  <p className="subject-code hidden">.</p>
-                </div>
+        {Object.keys(flowchart).map((semester) => (
+          <div className="semester-container" key={semester}>
+            <h2 className="semester-title">{romanNumbers[semester]}</h2>
+            {flowchart[semester].map((subject, subjectIndex) => (
+              <div
+                key={subject.code}
+                className={`${subject.code} subject-container`}
+                onMouseEnter={() => updatePrerequisitesPath(semester, subjectIndex)}
+                onMouseLeave={() => setPrerequisitesPath([])}
+                onBlur={() => setPrerequisitesPath([])}
+                onClick={(e) => handleSubjectClicks(e, subject, semester, subjectIndex)}
+                style={{
+                  color: (subject.status === "todo" ? "#0D1321" : "#FFFBFE"),
+                  backgroundColor: subject.status === "todo" ? "#F4F5FF" :
+                    subject.status === "doing" ? "#FFBABA" : "#7D83FF"
+                }}
+              >
+                <p className="subject-code">{subject.code}</p>
+                <p className="subject-name">{subject.name}</p>
+                <p className="subject-code hidden">.</p>
+              </div>
             ))}
           </div>
         ))}
         {/* Whaht about mixing solid and dashed borders, huh? */}
         {prerequisitesPath.map((prerequisite, prerequisiteIndex) => (
-          <SteppedLineTo 
+          <SteppedLineTo
             key={prerequisiteIndex}
-            from={prerequisite.from} 
-            to={prerequisite.to} 
+            from={prerequisite.from}
+            to={prerequisite.to}
             fromAnchor="right"
             toAnchor="left"
             orientation="h"

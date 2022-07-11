@@ -1,4 +1,4 @@
-#login-page-content{
+#register-page-content{
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -7,7 +7,7 @@
     min-height: 100vh;
 }
 
-#login-container{
+#register-container{
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -15,28 +15,28 @@
     justify-content: center;
 }
 
-#login-container h2{
+#register-container h2{
     font-size: 40pt;
 
     align-self: stretch;
     text-align: left;
 }
 
-#login-container p:first-of-type{
+#register-container p:first-of-type{
     color: #868EA4;
     text-align: justify;
 }
 
-#login-container span{
+#register-container span{
     color: #868EA4;
     font-weight: 300;
 }
 
-#login-container span:first-of-type{
+#register-container span:first-of-type{
     margin-bottom: 40px;
 }
 
-#login-container form button{
+#register-container form button{
     border: none;
     background: var(--bg-secondary);
     
@@ -48,9 +48,51 @@
     cursor: pointer;
 }
 
-#login-container form input:focus {
+#register-container form input:focus {
     outline: 2px solid #7D83FF;
 }
+
+#register-container form select {
+    height: unset;
+}
+
+#register-container form .student-subject-container {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    background: #7D83FF;
+    padding: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+#register-container form .student-subject-container span {
+    color: #FFF;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+#register-container form .student-subject-container button {
+    padding: 5px;
+}
+
+#register-container #options-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+#register-container #options-container button {
+    width: 100%;
+    background: #FFF;
+    color: #7D83FF;
+    transition: all 0.5s;
+}
+
+#register-container #options-container button.selected {
+    background: #7d83ff;
+    color: #FFF;
+}
+
 
 #banner-container{
     flex-direction: column;
@@ -78,12 +120,16 @@
     max-width: 80%;
 }
 
+.focused-field{
+    outline: 2px solid #7D83FF;
+}
+
 #create-accout-link{
     color: red;
     background-color: red;
 }
 
-#invalid-login-msg{
+#invalid-register-msg{
     opacity: 1;
     transition: opacity 0.3s;
     display: flex;
@@ -101,13 +147,13 @@
     transition: opacity 0.3s;
 }
 
-#invalid-login-msg > p{
+#invalid-register-msg > p{
     color: black !important;
 }
 
 
 @media(min-width: 1200px){
-    #login-container{
+    #register-container{
         flex: 0.5;
 
         width: 100%;

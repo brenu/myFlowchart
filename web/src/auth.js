@@ -1,7 +1,7 @@
 export const isAuthenticated = () => {
-    return true;
+    return localStorage.getItem("myFlowchart@token") ? true : false;
 };
 
 export const getAuthLevel = () => {
-    return localStorage.getItem("myFlowchart@auth");
+    return localStorage.getItem("myFlowchart@role");
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import api from "../../../services/api";
 import "./styles.css";
 
 function CoordinatorDashboard() {
@@ -10,16 +11,22 @@ function CoordinatorDashboard() {
 
     useEffect(() => {
         async function handleInit() {
-          const localFlowchart = JSON.parse(localStorage.getItem("myFlowchart@flowchart"));
-    
-          setSubjects(localFlowchart);
-        }
-    
-        handleInit();
-      }, []);
+            const response = await api.get("/coordinator/subject", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                }
+            });
 
-    function handleSubjectEditing(code) {
-        navigate(`/coordinator/subject/${code}`);
+            if (response.status === 200) {
+                setSubjects(response.data);
+            }
+        }
+
+        handleInit();
+    }, []);
+
+    function handleSubjectEditing(id) {
+        navigate(`/coordinator/subject/${id}`);
     }
 
     function subjectFormNavigation() {
@@ -32,19 +39,19 @@ function CoordinatorDashboard() {
                 <div id="page-header">
                     <div id="user-container">
                         <FaUserCircle size={26} />
-                        <span>Coordinator</span>
+                        <span>Espaço do Coordenador</span>
                     </div>
                     <button onClick={() => subjectFormNavigation()}>Criar</button>
                 </div>
                 <h1>Disciplinas</h1>
-                {subjects.map((semester, semesterIndex) => (
-                    <div className="semester-container" key={semesterIndex}>
-                        <h2>{semesterIndex+1}º Semestre</h2>
+                {Object.keys(subjects).map((semester) => (
+                    <div className="semester-container" key={semester}>
+                        <h2>{semester}º Semestre</h2>
                         <div className="subjects-container">
-                            {semester.map((subject, subjectIndex) => (
-                                <div 
-                                    className="subject-container" 
-                                    onClick={() => handleSubjectEditing(subject.code)}
+                            {subjects[semester].map((subject, subjectIndex) => (
+                                <div
+                                    className="subject-container"
+                                    onClick={() => handleSubjectEditing(subject.id)}
                                     key={subjectIndex}
                                 >
                                     <span>{subject.code}</span>

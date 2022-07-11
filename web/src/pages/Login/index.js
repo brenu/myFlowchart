@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles.css";
 import PageBanner from "../../assets/login_page_banner.png";
+import api from "../../services/api";
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [fieldFocus, setFieldFocus] = useState([false, false]);
     const [loginValidation, setLoginValidation] = useState(true);
     const navigate = useNavigate();
 
@@ -16,19 +16,25 @@ function Login() {
         textDecoration: 'none'
     }
 
-    function validateLogin(username, password){
-        setLoginValidation(username==="student");
-    }
-
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        localStorage.setItem("myFlowchart@auth", username.charAt(0).toUpperCase() + username.slice(1));
+        const response = await api.post("/login", {
+            username,
+            password
+        });
 
-        if(username === "student"){
-            navigate("/student/flowchart");
-        }else if (username === "coordinator"){
-            navigate("/coordinator/dashboard");
+        if (response.status === 200) {
+            const role = response.data.role;
+
+            localStorage.setItem("myFlowchart@token", response.data.token);
+            localStorage.setItem("myFlowchart@role", role);
+
+            if (role === "student") {
+                navigate('/student/flowchart');
+            } else {
+                navigate('/coordinator/dashboard');
+            }
         }
     }
 
@@ -38,36 +44,29 @@ function Login() {
                 <div id="login-container">
                     <form onSubmit={handleSubmit}>
                         <h2>Login</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec dolor risus. </p>
-                        <input 
-                            type="text" 
-                            value={username} 
+                        <input
+                            type="text"
+                            value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            onFocus={() => setFieldFocus([true, false])}
-                            onBlur={() => setFieldFocus([false, false])}
-                            className={fieldFocus[0]?"focused-field":""}
                             placeholder="Usuário"
                         />
-                        <input 
-                            type="password" 
-                            value={password} 
+                        <input
+                            type="password"
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            onFocus={() => setFieldFocus([false, true])}
-                            onBlur={() => setFieldFocus([false, false])}
-                            className={fieldFocus[1]?"focused-field":""}
                             placeholder="Senha"
                         />
                         <span>Esqueceu a senha?</span>
-                        <button type="submit" onClick={()=>validateLogin(username, password)}>Entrar</button>
-                        <span>Ainda não registrado? <Link to="/student/flowchart" style={linkStyle}>Criar conta</Link></span>
-                        <div id={!loginValidation?"invalid-login-msg":"fade-out"}>
+                        <button type="submit">Entrar</button>
+                        <span>Ainda não registrado? <Link to="/register" style={linkStyle}>Criar conta</Link></span>
+                        <div id={!loginValidation ? "invalid-login-msg" : "fade-out"}>
                             <p>Usuário ou senha inválidos.</p>
                         </div>
                     </form>
                 </div>
                 <div id="banner-container">
                     <h1>Bem-vindo ao <span>MyFlowchart</span></h1>
-                    <img src={PageBanner}/>
+                    <img src={PageBanner} />
                 </div>
             </div>
         </div>
