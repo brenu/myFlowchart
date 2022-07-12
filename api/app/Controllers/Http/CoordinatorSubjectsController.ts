@@ -49,7 +49,11 @@ export default class CoordinatorSubjectsController {
         }
       }
 
-      return response.status(200).json(subjects);
+      return response.status(200).json({
+        flowchart_id: flowchart.id,
+        flowchart_name: flowchart.name,
+        subjects,
+      });
     }
 
     return response.status(404);

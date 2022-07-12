@@ -13,18 +13,24 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 
     align-self: stretch;
     padding: 20px 0;
 }
 
 #admin-dashboard-content #page-header #user-container {
+    display: none;
     margin: 0;
     align-self: center;
 }
 
+#admin-dashboard-content #page-header > * {
+    width: unset;
+}
+
 #admin-dashboard-content #page-header button {
-    width: 200px;
+    width: 80px;
 }
 
 #admin-dashboard-content h1 {
@@ -78,6 +84,12 @@
     font-weight: 800;
 }
 
+#admin-dashboard-content #page-header #share-button {
+    background: none;
+    padding: 5px;
+    width: unset;
+}
+
 h1 {
     font-size: 42pt;
     color: var(--text-secondary);
@@ -96,5 +108,9 @@ h1 {
 @media(min-width: 1000px) {
     #admin-dashboard-content .semester-container .subjects-container {
         grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    #admin-dashboard-content #page-header button {
+        width: 200px;
     }
 }

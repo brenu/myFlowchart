@@ -90,6 +90,7 @@ export default class StudentsController {
                 INNER JOIN student_subjects ON subjects.id = student_subjects.subject_id
                 WHERE student_subjects.student_id = ${user.id}
                 AND semester = ${item.$original.semester}
+                ORDER BY name
               `)).rows;
 
               for (let subject of subjects[item.$original.semester]) {
@@ -104,7 +105,11 @@ export default class StudentsController {
               }
             }
 
-            return response.status(200).json(subjects);
+            return response.status(200).json({
+              flowchart_name: flowchart.name,
+              student_id: user.id,
+              subjects
+            });
           }
         }
       }

@@ -44,14 +44,27 @@ Route.put('reset/:token', "ForgotController.update");
 Route.post('student', "StudentsController.store");
 Route.post('coordinator', "CoordinatorsController.store");
 
-Route.get('student/:flowchart-id', "StudentsController.show").middleware('auth:api');
-Route.put('student-subject/:subject-id', "StudentSubjectsController.update").middleware('auth:api');
-Route.get('student-flowcharts', "StudentSubjectsController.index").middleware('auth:api');
-
-Route.post('comments', "CommentsController.store").middleware('auth:api');
-Route.delete('comments/:comment-id', "CommentsController.destroy").middleware('auth:api');
-
 Route.group(() => {
+  Route.group(() => {
+    Route.get('student/:flowchart-id', "StudentsController.show");
+    Route.put('student-subject/:subject-id', "StudentSubjectsController.update");
+    Route.get('student-flowcharts', "StudentSubjectsController.index");
+
+    Route.post('comments', "CommentsController.store");
+    Route.delete('comments/:comment-id', "CommentsController.destroy");
+    Route.get('student/privacy/:flowchart-id', 'PrivacySettingsController.show');
+    Route.put('student/privacy/:flowchart-id', 'PrivacySettingsController.update');
+
+  }).middleware(async ({ request, response }, next) => {
+    const user = request.session_user;
+
+    if (!user || user.role !== "student") {
+      return response.status(403);
+    }
+
+    await next();
+  });
+
   Route.group(() => {
 
     Route.get('coordinator/subject', 'CoordinatorSubjectsController.index');
@@ -70,6 +83,3 @@ Route.group(() => {
   });
 
 }).middleware('auth:api');
-
-Route.get('student/privacy/:flowchart-id', 'PrivacySettingsController.show').middleware('auth:api');
-Route.put('student/privacy/:flowchart-id', 'PrivacySettingsController.update').middleware('auth:api');

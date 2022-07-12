@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { FaUserCircle } from "react-icons/fa";
+import { FaShare, FaShareAlt, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { deleteCredentials } from "../../../auth";
 import api from "../../../services/api";
 import "./styles.css";
 
 function CoordinatorDashboard() {
     const [subjects, setSubjects] = useState([]);
+    const [flowchartId, setFlowchartId] = useState(0);
+    const [flowchartName, setFlowchartName] = useState(0);
 
     const navigate = useNavigate();
 
@@ -18,7 +21,9 @@ function CoordinatorDashboard() {
             });
 
             if (response.status === 200) {
-                setSubjects(response.data);
+                setSubjects(response.data.subjects);
+                setFlowchartId(response.data.flowchart_id);
+                setFlowchartName(response.data.flowchart_name);
             }
         }
 
@@ -33,6 +38,19 @@ function CoordinatorDashboard() {
         navigate("/coordinator/subject");
     }
 
+    function handleLogout() {
+        deleteCredentials();
+        navigate("/");
+    }
+
+    function handleShareUrl() {
+        navigator.clipboard.writeText(`${window.origin}/register?flowchart=${flowchartId}`).then(function () {
+            alert("A URL foi copiada para a área de transferência e pode ser compartilhada com seus alunos!");
+        }, function () {
+            alert("Ocorreu um erro, tente novamente mais tarde!");
+        });
+    }
+
     return (
         <div id="page-container">
             <div id="admin-dashboard-content">
@@ -41,6 +59,17 @@ function CoordinatorDashboard() {
                         <FaUserCircle size={26} />
                         <span>Espaço do Coordenador</span>
                     </div>
+                    <div id="logout-container">
+                        <button onClick={handleLogout}>
+                            Sair
+                        </button>
+                    </div>
+                    <button
+                        id="share-button" title="Compartilhar link de cadastro do curso"
+                        onClick={handleShareUrl}
+                    >
+                        <FaShareAlt color="#7d83ff" />
+                    </button>
                     <button onClick={() => subjectFormNavigation()}>Criar</button>
                 </div>
                 <h1>Disciplinas</h1>
