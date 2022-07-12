@@ -43,6 +43,8 @@ Route.put('reset/:token', "ForgotController.update");
 
 Route.post('student', "StudentsController.store");
 Route.post('coordinator', "CoordinatorsController.store");
+Route.post('form-validation/', "FormController.store");
+
 
 Route.group(() => {
   Route.group(() => {

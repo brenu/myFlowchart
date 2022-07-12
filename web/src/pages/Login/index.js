@@ -1,13 +1,20 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import './styles.css';
 import PageBanner from '../../assets/login_page_banner.png';
 import api from '../../services/api';
 
+import {Bounce} from 'react-activity';
+import 'react-activity/dist/library.css';
+
+import ErrorMessage from '../../components/ErrorMessage';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loginValidation, setLoginValidation] = useState(true);
+
+  const [loading, setLoading] = useState(false);
+  const [showError, setShowError] = useState(false);
+
   const navigate = useNavigate();
 
   const linkStyle = {
@@ -17,14 +24,17 @@ function Login() {
   };
 
   async function handleSubmit(e) {
+    if (loading) return;
+
+    setLoading(true);
     e.preventDefault();
 
-    const response = await api.post('/login', {
-      username,
-      password,
-    });
+    try {
+      const response = await api.post('/login', {
+        username,
+        password,
+      });
 
-    if (response.status === 200) {
       const role = response.data.role;
 
       localStorage.setItem('myFlowchart@token', response.data.token);
@@ -35,8 +45,17 @@ function Login() {
       } else {
         navigate('/coordinator/dashboard');
       }
+    } catch (error) {
+      setShowError(true);
+      console.log('In Login/HandlSubmit()', error.response);
     }
+
+    setLoading(false);
   }
+
+  useEffect(() => {
+    setShowError(false);
+  }, [username, password]);
 
   return (
     <div id="page-container">
@@ -59,16 +78,18 @@ function Login() {
             <Link to="/forgotPassword" id="forgot-password-btn">
               Esqueceu a senha?
             </Link>
-            <button type="submit">Entrar</button>
+            <button type="submit" disabled={!username || !password}>
+              {loading ? <Bounce color="white" /> : 'Entrar'}
+            </button>
             <span>
               Ainda não registrado?{' '}
               <Link to="/register" style={linkStyle}>
                 Criar conta
               </Link>
             </span>
-            <div id={!loginValidation ? 'invalid-login-msg' : 'fade-out'}>
-              <p>Usuário ou senha inválidos.</p>
-            </div>
+            {showError && (
+              <ErrorMessage message="Usuário ou senha inválidos." />
+            )}
           </form>
         </div>
         <div id="banner-container">

@@ -57,8 +57,13 @@ button {
   font-size: 16pt;
   font-weight: normal;
 
-  padding: 10px;
+  padding: 25px;
   cursor: pointer;
+}
+
+button:disabled{
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 form {
@@ -88,6 +93,11 @@ form input::placeholder {
   color:#868EA4;
 }
 
+form input:focus {
+  outline: 2px solid #7D83FF;
+}
+
+
 form textarea {
   background: #F4F5FF;
   padding: 20px;
@@ -103,7 +113,6 @@ form select {
   background: #F4F5FF;
   padding: 20px;
   font-size: 12pt;
-  height: 200px;
 
   border: none;
   outline: none;

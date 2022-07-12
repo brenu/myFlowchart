@@ -36,22 +36,6 @@
     margin-bottom: 40px;
 }
 
-#login-container form button{
-    border: none;
-    background: var(--bg-secondary);
-    
-    color: var(--text-tertiary);
-    font-size: 16pt;
-    font-weight: normal;
-
-    padding: 25px;
-    cursor: pointer;
-}
-
-#login-container form input:focus {
-    outline: 2px solid #7D83FF;
-}
-
 #banner-container{
     flex-direction: column;
     align-items: center;
@@ -78,39 +62,11 @@
     max-width: 80%;
 }
 
-#create-accout-link{
-    color: red;
-    background-color: red;
-}
-
 #forgot-password-btn{
     text-decoration: none;
     color: var(--bg-secondary);
     font-weight: 500;
 }
-
-#invalid-login-msg{
-    opacity: 1;
-    transition: opacity 0.3s;
-    display: flex;
-    justify-content: center;
-    padding: 25px;
-    
-    font-size: 14pt;
-    font-weight: normal;
-    justify-content: space-around;
-    background-color: #FFDBDB;
-}
-
-#fade-out{
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-#invalid-login-msg > p{
-    color: black !important;
-}
-
 
 @media(min-width: 1200px){
     #login-container{
