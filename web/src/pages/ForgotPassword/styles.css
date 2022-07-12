@@ -1,0 +1,204 @@
+#forgot-page-content{
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: stretch;
+
+    min-height: 100vh;
+}
+
+#forgot-container{
+    flex: 1;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header h2{
+    font-size: 40pt;
+    align-self: stretch;
+    text-align: left;
+}
+
+.header p{
+    margin-top: 10px;
+}
+
+#error-container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 25px;
+}
+
+#error-msg{
+    margin-top: 5px;
+    color: red !important;
+    font-weight: bold;
+}
+
+#back-btn{
+    margin-top: 20px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+}
+
+#back-btn:hover{
+    cursor: pointer;
+}
+
+#back-btn p{
+    color: var(--bg-secondary) !important;
+    font-weight: bold;
+    margin: 0;  
+}
+
+#forgot-container p:first-of-type{
+    color: #868EA4;
+    text-align: justify;
+}
+
+#forgot-container span{
+    color: #868EA4;
+    font-weight: 300;
+}
+
+#forgot-container span:first-of-type{
+    margin-bottom: 40px;
+}
+
+#forgot-container input{
+    margin-top: 25px;
+}
+
+#forgot-container input:focus {
+    outline: 2px solid #7D83FF;
+}
+#forgot-container button{
+    border: none;
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+    
+    font-size: 16pt;
+    font-weight: normal;
+
+    padding: 25px;
+    cursor: pointer;
+}
+
+#forgot-container select {
+    height: unset;
+}
+
+#forgot-container .student-subject-container {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    background: #7D83FF;
+    padding: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+#forgot-container .student-subject-container span {
+    color: #FFF;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+#forgot-container .student-subject-container button {
+    padding: 5px;
+}
+
+#forgot-container #options-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+#forgot-container #options-container button {
+    width: 100%;
+    background: #FFF;
+    color: #7D83FF;
+    transition: all 0.5s;
+}
+
+#forgot-container #options-container button.selected {
+    background: #7d83ff;
+    color: #FFF;
+}
+
+
+#banner-container{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    display: none;
+    background: #7D83FF;
+}
+
+#banner-container h1{
+    color: var(--text-tertiary);
+    font-size: 36pt;
+    
+    text-align: center;
+    max-width: 400px;
+    margin-bottom: 20px;
+}
+
+#banner-container h1 span{
+    font-size: 40pt;
+}
+
+#banner-container img{
+    max-width: 80%;
+}
+
+.focused-field{
+    outline: 2px solid #7D83FF;
+}
+
+#create-accout-link{
+    color: red;
+    background-color: red;
+}
+
+#invalid-forgot-msg{
+    opacity: 1;
+    transition: opacity 0.3s;
+    display: flex;
+    justify-content: center;
+    padding: 25px;
+    
+    font-size: 14pt;
+    font-weight: normal;
+    justify-content: space-around;
+    background-color: #FFDBDB;
+}
+
+#fade-out{
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#invalid-forgot-msg > p{
+    color: black !important;
+}
+
+
+@media(min-width: 1200px){
+    #forgot-container{
+        flex: 0.5;
+
+        width: 100%;
+    }
+
+    #banner-container{
+        flex: 0.5;
+
+        display: flex;
+    }
+}

@@ -83,6 +83,12 @@
     background-color: red;
 }
 
+#forgot-password-btn{
+    text-decoration: none;
+    color: var(--bg-secondary);
+    font-weight: 500;
+}
+
 #invalid-login-msg{
     opacity: 1;
     transition: opacity 0.3s;
