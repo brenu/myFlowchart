@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { SteppedLineTo } from 'react-lineto';
-import { FaUserCircle } from "react-icons/fa";
+import {useState, useEffect} from 'react';
+import {SteppedLineTo} from 'react-lineto';
+import {FaUserCircle} from 'react-icons/fa';
 
-import "./styles.css";
-import { useNavigate, useParams } from 'react-router-dom';
+import './styles.css';
+import {useNavigate, useParams} from 'react-router-dom';
 import api from '../../../services/api';
-import { deleteCredentials } from '../../../auth';
+import {deleteCredentials} from '../../../auth';
 
 function FlowchartSelection() {
   const [flowcharts, setFlowcharts] = useState([]);
@@ -14,23 +14,23 @@ function FlowchartSelection() {
 
   useEffect(() => {
     async function handleInit() {
-
       try {
-        const response = await api.get("/student-flowcharts/", {
+        const response = await api.get('/student-flowcharts/', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem(
+              'myFlowchart@token'
+            )}`,
+          },
         });
 
         if (response.status === 200) {
           setFlowcharts(response.data);
         }
       } catch (error) {
-        alert("Houve um erro em nosso servidor, tente novamente mais tarde!");
+        alert('Houve um erro em nosso servidor, tente novamente mais tarde!');
         deleteCredentials();
-        navigate("/");
+        navigate('/');
       }
-
     }
 
     handleInit();
@@ -44,7 +44,7 @@ function FlowchartSelection() {
     <div id="page-container" class="flowchart-selection-page-container">
       <h1>Selecione um curso</h1>
       <div id="flowcharts-container">
-        {flowcharts.map(flowchart => (
+        {flowcharts.map((flowchart) => (
           <button onClick={() => handleNavigation(flowchart.id)}>
             {flowchart.name}
           </button>

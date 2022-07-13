@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {MdArrowBackIos} from 'react-icons/md';
 import api from '../../services/api';
 
@@ -12,32 +12,35 @@ import ErrorMessage from '../../components/ErrorMessage';
 
 import './styles.css';
 
-export default function ForgotPassword() {
+export default function ResetPassword() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
   const [showError, setShowError] = useState(false);
   const [step, setStep] = useState(1);
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const {token} = useParams();
 
   async function handlePasswordRecovery(e) {
     setLoading(true);
     e.preventDefault();
 
     try {
-      await api.post('/forgot', {username});
+      await api.put(`/reset/${token}`, {password});
       setShowError(false);
       setStep(2);
     } catch (e) {
+      setErrorMessage(e.response.data.message);
       setShowError(true);
       console.log(e);
     }
-
     setLoading(false);
   }
 
   useEffect(() => {
     setShowError(false);
-  }, [username]);
+  }, [password]);
 
   return (
     <div id="container">
@@ -45,40 +48,39 @@ export default function ForgotPassword() {
         {step === 1 ? (
           <form>
             <div className="header">
-              <h2>Esqueceu a senha?</h2>
+              <h2>Redefinir senha</h2>
               <p>
                 Não tem problema, te enviaremos as instruções para recuperação.
               </p>
             </div>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               maxLength={255}
-              placeholder="Usuário"
+              placeholder="Nova senha"
             />
             <button
               type="submit"
               onClick={handlePasswordRecovery}
-              title="Recuperar senha"
-              disabled={!username}
+              title="Alterar senha"
+              disabled={!password}
             >
-              {loading ? <Bounce /> : 'Recuperar senha'}
+              {loading ? <Bounce /> : 'Alterar senha'}
             </button>
-            {showError && <ErrorMessage />}
+            {showError && <ErrorMessage message={errorMessage} />}
           </form>
         ) : (
           <>
             <div className="header">
-              <h2>Confira seu email</h2>
-              <p>
-                Se há algum cadastro desse usuário,
+              <h2>
+                Senha alterada
                 <br />
-                você receberá as instruções para redefinir sua senha.
-              </p>
+                com sucesso!
+              </h2>
               <div id="back-btn" onClick={() => navigate('/')}>
                 <MdArrowBackIos color="#7D83FF" id="ico" />
-                <p>Voltar para Login</p>
+                <p>Ir para Login</p>
               </div>
             </div>
           </>

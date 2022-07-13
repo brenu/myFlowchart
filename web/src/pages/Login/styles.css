@@ -1,83 +1,51 @@
-#login-page-content{
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: stretch;
+#container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: stretch;
 
-    min-height: 100vh;
+  min-height: 100vh;
 }
 
-#login-container{
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+#login-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-#login-container h2{
-    font-size: 40pt;
+#login-container h2 {
+  font-size: 40pt;
 
-    align-self: stretch;
-    text-align: left;
+  align-self: stretch;
+  text-align: left;
 }
 
-#login-container p:first-of-type{
-    color: #868EA4;
-    text-align: justify;
+#login-container p:first-of-type {
+  color: #868ea4;
+  text-align: justify;
 }
 
-#login-container span{
-    color: #868EA4;
-    font-weight: 300;
+#login-container span {
+  color: #868ea4;
+  font-weight: 300;
 }
 
-#login-container span:first-of-type{
-    margin-bottom: 40px;
+#login-container span:first-of-type {
+  margin-bottom: 40px;
 }
 
-#banner-container{
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    display: none;
-    background: #7D83FF;
+#forgot-password-btn {
+  text-decoration: none;
+  color: var(--bg-secondary);
+  font-weight: 500;
 }
 
-#banner-container h1{
-    color: var(--text-tertiary);
-    font-size: 36pt;
-    
-    text-align: center;
-    max-width: 400px;
-    margin-bottom: 20px;
-}
+@media (min-width: 1200px) {
+  #login-container {
+    flex: 0.5;
 
-#banner-container h1 span{
-    font-size: 40pt;
-}
-
-#banner-container img{
-    max-width: 80%;
-}
-
-#forgot-password-btn{
-    text-decoration: none;
-    color: var(--bg-secondary);
-    font-weight: 500;
-}
-
-@media(min-width: 1200px){
-    #login-container{
-        flex: 0.5;
-
-        width: 100%;
-    }
-
-    #banner-container{
-        flex: 0.5;
-
-        display: flex;
-    }
+    width: 100%;
+  }
 }

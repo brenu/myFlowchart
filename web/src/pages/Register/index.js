@@ -11,8 +11,9 @@ import 'react-activity/dist/library.css';
 import ErrorMessage from '../../components/ErrorMessage';
 
 import api from '../../services/api';
+import Banner from '../../components/Banner';
 
-function Register() {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [recovery_email, setRecovery_email] = useState('');
@@ -167,176 +168,167 @@ function Register() {
   }
 
   return (
-    <div id="page-container">
-      <div id="register-page-content">
-        <div id="register-container">
-          <form onSubmit={handleSubmit}>
-            {step === 1 && (
-              <>
-                <h2>Cadastro</h2>
-                <div className="form-field-container">
+    <div id="container">
+      <div id="register-container">
+        <form onSubmit={handleSubmit}>
+          {step === 1 && (
+            <>
+              <h2>Cadastro</h2>
+              <div className="form-field-container">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Usuário"
+                />
+
+                {usernameError && (
+                  <div>
+                    <VscError color="red" />
+                    <p>{usernameError}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-field-container">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Senha"
+                />
+                {passwordError && (
+                  <div>
+                    <VscError color="red" />
+                    <p>{passwordError}</p>
+                  </div>
+                )}
+              </div>
+              <div className="form-field-container">
+                <input
+                  type="email"
+                  value={recovery_email}
+                  onChange={(e) => setRecovery_email(e.target.value)}
+                  placeholder="E-mail de recuperação"
+                />
+                {emailError && (
+                  <div>
+                    <VscError color="red" />
+                    <p>{emailError}</p>
+                  </div>
+                )}
+              </div>
+
+              <label htmlFor="role">Sou um...</label>
+              <div id="options-container">
+                <button
+                  type="button"
+                  onClick={() => setRole('student')}
+                  className={role === 'student' ? 'selected' : ''}
+                >
+                  Estudante
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('coordinator')}
+                  className={role === 'coordinator' ? 'selected' : ''}
+                >
+                  Coordenador
+                </button>
+              </div>
+              <button
+                type="submit"
+                onClick={validateForm}
+                disabled={
+                  !username ||
+                  !password ||
+                  !recovery_email ||
+                  usernameError ||
+                  passwordError ||
+                  emailError
+                }
+              >
+                {loading ? <Bounce /> : 'Continuar'}
+              </button>
+              <span>
+                Já registrado?{' '}
+                <Link to="/" style={linkStyle}>
+                  Efetuar login
+                </Link>
+              </span>
+              {showError && <ErrorMessage />}
+            </>
+          )}
+          {step === 2 && (
+            <>
+              {role === 'student' ? (
+                <>
+                  <h2>Escolha seus cursos</h2>
+                  <select
+                    onChange={(e) => {
+                      updateSelectedFlowcharts(e.target.value);
+                      console.log(e.target.value);
+                    }}
+                  >
+                    <option value="">Selecione aqui</option>
+                    {flowcharts
+                      .filter((item) => !selectedFlowcharts.includes(item))
+                      .map((flowchart) => (
+                        <option value={flowchart.id}>{flowchart.name}</option>
+                      ))}
+                  </select>
+                  <div style={{overflow: 'hidden'}}>
+                    {selectedFlowcharts.map((selectedFlowchart) => (
+                      <div className="student-subject-container">
+                        <span>{selectedFlowchart.name}</span>
+                        <button type="button">
+                          <FaTimes
+                            color="#FFF"
+                            size={16}
+                            onClick={() =>
+                              setSelectedFlowcharts(
+                                selectedFlowcharts.filter(
+                                  (item) => item.id != selectedFlowchart.id
+                                )
+                              )
+                            }
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={selectedFlowcharts.length === 0}
+                  >
+                    {loading ? <Bounce /> : 'Cadastrar'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2>Nomeie seu curso</h2>
                   <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Usuário"
+                    value={flowchartName}
+                    onChange={(e) => setFlowchartName(e.target.value)}
+                    placeholder="Informe o nome do seu curso"
                   />
-
-                  {usernameError && (
-                    <div>
-                      <VscError color="red" />
-                      <p>{usernameError}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-field-container">
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Senha"
-                  />
-                  {passwordError && (
-                    <div>
-                      <VscError color="red" />
-                      <p>{passwordError}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="form-field-container">
-                  <input
-                    type="email"
-                    value={recovery_email}
-                    onChange={(e) => setRecovery_email(e.target.value)}
-                    placeholder="E-mail de recuperação"
-                  />
-                  {emailError && (
-                    <div>
-                      <VscError color="red" />
-                      <p>{emailError}</p>
-                    </div>
-                  )}
-                </div>
-
-                <label htmlFor="role">Sou um...</label>
-                <div id="options-container">
                   <button
-                    type="button"
-                    onClick={() => setRole('student')}
-                    className={role === 'student' ? 'selected' : ''}
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={!flowchartName}
                   >
-                    Estudante
+                    {loading ? <Bounce /> : 'Cadastrar'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('coordinator')}
-                    className={role === 'coordinator' ? 'selected' : ''}
-                  >
-                    Coordenador
-                  </button>
-                </div>
-                <button
-                  type="submit"
-                  onClick={validateForm}
-                  disabled={
-                    !username ||
-                    !password ||
-                    !recovery_email ||
-                    usernameError ||
-                    passwordError ||
-                    emailError
-                  }
-                >
-                  {loading ? <Bounce /> : 'Continuar'}
-                </button>
-                <span>
-                  Já registrado?{' '}
-                  <Link to="/" style={linkStyle}>
-                    Efetuar login
-                  </Link>
-                </span>
-                {showError && <ErrorMessage />}
-              </>
-            )}
-            {step === 2 && (
-              <>
-                {role === 'student' ? (
-                  <>
-                    <h2>Escolha seus cursos</h2>
-                    <select
-                      onChange={(e) => {
-                        updateSelectedFlowcharts(e.target.value);
-                        console.log(e.target.value);
-                      }}
-                    >
-                      <option value="">Selecione aqui</option>
-                      {flowcharts
-                        .filter((item) => !selectedFlowcharts.includes(item))
-                        .map((flowchart) => (
-                          <option value={flowchart.id}>{flowchart.name}</option>
-                        ))}
-                    </select>
-                    <div style={{overflow: 'hidden'}}>
-                      {selectedFlowcharts.map((selectedFlowchart) => (
-                        <div className="student-subject-container">
-                          <span>{selectedFlowchart.name}</span>
-                          <button type="button">
-                            <FaTimes
-                              color="#FFF"
-                              size={16}
-                              onClick={() =>
-                                setSelectedFlowcharts(
-                                  selectedFlowcharts.filter(
-                                    (item) => item.id != selectedFlowchart.id
-                                  )
-                                )
-                              }
-                            />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      type="submit"
-                      onClick={handleSubmit}
-                      disabled={selectedFlowcharts.length === 0}
-                    >
-                      {loading ? <Bounce /> : 'Cadastrar'}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <h2>Nomeie seu curso</h2>
-                    <input
-                      type="text"
-                      value={flowchartName}
-                      onChange={(e) => setFlowchartName(e.target.value)}
-                      placeholder="Informe o nome do seu curso"
-                    />
-                    <button
-                      type="submit"
-                      onClick={handleSubmit}
-                      disabled={!flowchartName}
-                    >
-                      {loading ? <Bounce /> : 'Cadastrar'}
-                    </button>
-                  </>
-                )}
-                {showError && <ErrorMessage />}
-              </>
-            )}
-          </form>
-        </div>
-        <div id="banner-container">
-          <h1>
-            Bem-vindo ao <span>MyFlowchart</span>
-          </h1>
-          <img src={PageBanner} />
-        </div>
+                </>
+              )}
+              {showError && <ErrorMessage />}
+            </>
+          )}
+        </form>
       </div>
+      <Banner />
     </div>
   );
 }
-
-export default Register;

@@ -1,13 +1,13 @@
 import {useEffect, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import './styles.css';
-import PageBanner from '../../assets/login_page_banner.png';
 import api from '../../services/api';
 
 import {Bounce} from 'react-activity';
 import 'react-activity/dist/library.css';
 
 import ErrorMessage from '../../components/ErrorMessage';
+import Banner from '../../components/Banner';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -58,47 +58,38 @@ function Login() {
   }, [username, password]);
 
   return (
-    <div id="page-container">
-      <div id="login-page-content">
-        <div id="login-container">
-          <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Usuário"
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Senha"
-            />
-            <Link to="/forgotPassword" id="forgot-password-btn">
-              Esqueceu a senha?
+    <div id="container">
+      <div id="login-container">
+        <form onSubmit={handleSubmit}>
+          <h2>Login</h2>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Usuário"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha"
+          />
+          <Link to="/forgotPassword" id="forgot-password-btn">
+            Esqueceu a senha?
+          </Link>
+          <button type="submit" disabled={!username || !password}>
+            {loading ? <Bounce color="white" /> : 'Entrar'}
+          </button>
+          <span>
+            Ainda não registrado?{' '}
+            <Link to="/register" style={linkStyle}>
+              Criar conta
             </Link>
-            <button type="submit" disabled={!username || !password}>
-              {loading ? <Bounce color="white" /> : 'Entrar'}
-            </button>
-            <span>
-              Ainda não registrado?{' '}
-              <Link to="/register" style={linkStyle}>
-                Criar conta
-              </Link>
-            </span>
-            {showError && (
-              <ErrorMessage message="Usuário ou senha inválidos." />
-            )}
-          </form>
-        </div>
-        <div id="banner-container">
-          <h1>
-            Bem-vindo ao <span>MyFlowchart</span>
-          </h1>
-          <img src={PageBanner} />
-        </div>
+          </span>
+          {showError && <ErrorMessage message="Usuário ou senha inválidos." />}
+        </form>
       </div>
+      <Banner />
     </div>
   );
 }
