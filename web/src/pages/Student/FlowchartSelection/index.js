@@ -5,6 +5,7 @@ import { FaUserCircle } from "react-icons/fa";
 import "./styles.css";
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../services/api';
+import { deleteCredentials } from '../../../auth';
 
 function FlowchartSelection() {
   const [flowcharts, setFlowcharts] = useState([]);
@@ -14,15 +15,22 @@ function FlowchartSelection() {
   useEffect(() => {
     async function handleInit() {
 
-      const response = await api.get("/student-flowcharts/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
-        }
-      });
+      try {
+        const response = await api.get("/student-flowcharts/", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+          }
+        });
 
-      if (response.status === 200) {
-        setFlowcharts(response.data);
+        if (response.status === 200) {
+          setFlowcharts(response.data);
+        }
+      } catch (error) {
+        alert("Houve um erro em nosso servidor, tente novamente mais tarde!");
+        deleteCredentials();
+        navigate("/");
       }
+
     }
 
     handleInit();

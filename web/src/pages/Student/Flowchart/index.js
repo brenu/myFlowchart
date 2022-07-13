@@ -16,10 +16,11 @@ import {GiConvergenceTarget} from 'react-icons/gi';
 import {IoMdClose} from 'react-icons/io';
 
 import {useNavigate, useParams} from 'react-router-dom';
+import './styles.css';
 import api from '../../../services/api';
 import {deleteCredentials} from '../../../auth';
 
-import {Windmill} from 'react-activity';
+import {Windmill, Dots} from 'react-activity';
 import 'react-activity/dist/library.css';
 
 import './styles.css';
@@ -28,7 +29,8 @@ import './modal.css';
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
   const [subjectTimeout, setSubjectTimeout] = useState(null);
   const {id} = useParams();
@@ -39,6 +41,10 @@ function Flowchart() {
   const [flowchartName, setFlowchartName] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const [privacySettings, setPrivacySettings] = useState({});
+  const [areSettingsBeingUpdated, setAreSettingsBeingUpdated] = useState(false);
 
   const colors = [
     '#F55',
@@ -104,6 +110,54 @@ function Flowchart() {
   useEffect(() => {
     console.log(selectedSubject);
   }, [selectedSubject]);
+
+  useEffect(() => {
+    if (areSettingsBeingUpdated) {
+      handlePrivacySettingsUpdate();
+    }
+  }, [areSettingsBeingUpdated]);
+
+  function openPrivacyModal() {
+    setShowPrivacyModal(true);
+    setModalLoading(true);
+    getPrivacySettings();
+  }
+
+  async function getPrivacySettings() {
+    try {
+      const response = await api.get(`/student/privacy/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setPrivacySettings(response.data);
+        setModalLoading();
+      }
+    } catch (error) {
+      alert('Ocorreu um erro, tente novamente mais tarde!');
+      setShowPrivacyModal(false);
+    }
+  }
+
+  async function handlePrivacySettingsUpdate() {
+    if (!privacySettings.is_public) {
+      navigator.clipboard.writeText('');
+    }
+
+    try {
+      await api.put(`/student/privacy/${id}`, privacySettings, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
+        },
+      });
+
+      setAreSettingsBeingUpdated(false);
+    } catch (error) {
+      alert('Ocorreu um erro, tente novamente mais tarde!');
+    }
+  }
 
   function handleShareUrl() {
     navigator.clipboard
@@ -240,7 +294,7 @@ function Flowchart() {
     if (e.detail === 1) {
       setSubjectTimeout(
         setTimeout(() => {
-          setSelectedSubject(subject);
+          setSelectedSubject({...subject, semester: semester});
           setShowModal((showModal) => !showModal);
           window.scrollTo(0, 0);
         }, 350)
@@ -252,20 +306,11 @@ function Flowchart() {
   }
 
   useEffect(() => {
-    if (!showModal) setModalStep(3);
+    if (!showModal) setModalStep(1);
   }, [showModal]);
 
   const [modalStep, setModalStep] = useState(3);
   const [visibleInput, setVisibleInput] = useState(false);
-
-  const Comment = (props) => {
-    return (
-      <div id="comment-container">
-        <p>{props.text}</p>
-        <p>{props.date_time}</p>
-      </div>
-    );
-  };
 
   const SubjectModalContainer = () => {
     return (
@@ -277,7 +322,7 @@ function Flowchart() {
           <div>
             {modalStep === 1 ? (
               <div id="modal-left-btn">
-                <p>IV Semestre</p>
+                <p>Semestre {romanNumbers[selectedSubject.semester]}</p>
               </div>
             ) : (
               <BiArrowBack
@@ -293,7 +338,7 @@ function Flowchart() {
               id="close-modal-btn"
             />
           </div>
-          <p>Inteligência Artificial</p>
+          <p>{selectedSubject.name}</p>
           {modalStep > 1 && (
             <p>
               {modalStep === 2
@@ -314,9 +359,9 @@ function Flowchart() {
                   <p>Carga Horária</p>
                 </div>
                 <div>
-                  <p>CET094</p>
+                  <p>{selectedSubject.code}</p>
                   <div>
-                    <div /> <p>Cursando</p>
+                    <div /> <p>{selectedSubject.status}</p>
                   </div>
                   <p>Clemildo Gonçalvos / Não informado</p>
                   <div>
@@ -411,12 +456,68 @@ function Flowchart() {
   return (
     <div
       id={'page-container' + (loading ? '-loading' : '')}
-      class="flowchart-page-container"
+      className="flowchart-page-container"
     >
       <div id="loading-modal-container">
         <Windmill color="white" size={40} />
       </div>
+      {/* Modal da disciplina */}
       {showModal && <SubjectModalContainer />}
+
+      {/* Modal de compartilhamento/privacidade */}
+      {showPrivacyModal && (
+        <div
+          id="privacy-modal-container"
+          onClick={() => setShowPrivacyModal(!showPrivacyModal)}
+        >
+          <div id="privacy-modal" onClick={(e) => e.stopPropagation()}>
+            {modalLoading ? (
+              <Dots color="#7D83FF" size={40} />
+            ) : (
+              <form onSubmit={(e) => e.preventDefault()}>
+                <label htmlFor="is_public">Fluxograma público</label>
+                <select
+                  name="is_public"
+                  onChange={(e) => {
+                    setPrivacySettings({
+                      ...privacySettings,
+                      is_public: e.target.value === 'true',
+                    });
+                    setAreSettingsBeingUpdated(true);
+                  }}
+                  value={privacySettings.is_public}
+                >
+                  <option value={true}>Habilitado</option>
+                  <option value={false}>Desabilitado</option>
+                </select>
+
+                <label htmlFor="has_public_comments">
+                  Comentários públicos
+                </label>
+                <select
+                  name="has_public_comments"
+                  onChange={(e) => {
+                    setPrivacySettings({
+                      ...privacySettings,
+                      has_public_comments: e.target.value === 'true',
+                    });
+                    setAreSettingsBeingUpdated(true);
+                  }}
+                  value={privacySettings.has_public_comments}
+                >
+                  <option value={true}>Habilitado</option>
+                  <option value={false}>Desabilitado</option>
+                </select>
+                {privacySettings.is_public && (
+                  <button type="button" onClick={handleShareUrl}>
+                    Compartilhar Link
+                  </button>
+                )}
+              </form>
+            )}
+          </div>
+        </div>
+      )}
       <div id="page-header">
         <p></p>
         <button onClick={handleLogout} title="Sair">
@@ -426,7 +527,7 @@ function Flowchart() {
         <button
           id="share-button"
           title="Compartilhar link do fluxograma"
-          onClick={handleShareUrl}
+          onClick={openPrivacyModal}
         >
           <MdShare color="white" />
         </button>

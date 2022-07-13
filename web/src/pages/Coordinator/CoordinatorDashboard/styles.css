@@ -10,12 +10,17 @@
 }
 
 #admin-dashboard-content #page-header {
+    max-width: 1200px;
+    width: 90%;
+    align-self: center;
+
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    background: #fff;
 
-    align-self: stretch;
+    align-self: center;
     padding: 20px 0;
 }
 
@@ -30,6 +35,8 @@
 }
 
 #admin-dashboard-content #page-header button {
+    flex: unset;
+    padding: 10px 0;
     width: 80px;
 }
 

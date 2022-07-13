@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { deleteCredentials } from "../../../auth";
 import api from "../../../services/api";
 
 import "./styles.css";
@@ -16,42 +17,46 @@ function SubjectForm() {
     const [prerequisites, setPrerequisites] = useState([]);
     const [semester, setSemester] = useState(1);
 
+    const [errorMessage, setErrorMessage] = useState("");
+
     useEffect(() => {
         async function handleInit() {
-            const response = await api.get("/coordinator/subject", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+            try {
+                const response = await api.get("/coordinator/subject", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    const localSubjects = {};
+
+                    for (let [semester, value] of Object.entries(response.data.subjects)) {
+                        value.show = false;
+                        localSubjects[semester] = value;
+                    }
+
+                    setSubjects(localSubjects);
                 }
-            });
 
-            if (response.status === 200) {
-                const localSubjects = {};
-
-                for (let [semester, value] of Object.entries(response.data)) {
-                    value.show = false;
-                    localSubjects[semester] = value;
-                }
-
-                setSubjects(localSubjects);
-            }
-
-            if (!params.id) {
-                return;
-            }
-
-            for (let [index, semester] of Object.entries(response.data)) {
-                const searchResults = semester.filter((subject) => subject.id === parseInt(params.id));
-                console.log(searchResults, params.id);
-                if (searchResults.length) {
-                    setCode(searchResults[0].code);
-                    setName(searchResults[0].name);
-                    setSummary(searchResults[0].summary);
-                    setPrerequisites(searchResults[0].prerequisites ? searchResults[0].prerequisites : []);
-                    setSemester(index);
+                if (!params.id) {
                     return;
                 }
-            }
 
+                for (let [index, semester] of Object.entries(response.data.subjects)) {
+                    const searchResults = semester.filter((subject) => subject.id === parseInt(params.id));
+                    if (searchResults.length) {
+                        setCode(searchResults[0].code);
+                        setName(searchResults[0].name);
+                        setSummary(searchResults[0].summary);
+                        setPrerequisites(searchResults[0].prerequisites ? searchResults[0].prerequisites : []);
+                        setSemester(index);
+                        return;
+                    }
+                }
+            } catch (error) {
+                alert("Houve um erro em nosso servidor, tente novamente mais tarde!");
+            }
             navigate("/coordinator/dashboard");
         }
 
@@ -69,41 +74,53 @@ function SubjectForm() {
     }
 
     async function handleCreation() {
-        const response = await api.post("/coordinator/subject", {
-            name,
-            code,
-            summary,
-            semester,
-            prerequisites
-        },
-            {
+        try {
+            const response = await api.post("/coordinator/subject", {
+                name,
+                code,
+                summary,
+                semester,
+                prerequisites
+            },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                    }
+                });
+
+            if (response.status === 201) {
+                alert("Submissão feita com sucesso!");
+                navigate("/coordinator/dashboard");
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                setErrorMessage(error.response.data.message);
+            }
+        }
+    }
+
+    async function handleEditing() {
+        try {
+            const response = await api.put(`/coordinator/subject/${params.id}`, {
+                name,
+                code,
+                summary,
+                semester,
+                prerequisites
+            }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
                 }
             });
 
-        if (response.status === 201) {
-            alert("Submissão feita com sucesso!");
-            navigate("/coordinator/dashboard");
-        }
-    }
-
-    async function handleEditing() {
-        const response = await api.put(`/coordinator/subject/${params.id}`, {
-            name,
-            code,
-            summary,
-            semester,
-            prerequisites
-        }, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+            if (response.status === 200) {
+                alert("Submissão feita com sucesso!")
+                navigate("/coordinator/dashboard");
             }
-        });
-
-        if (response.status === 200) {
-            alert("Submissão feita com sucesso!")
-            navigate("/coordinator/dashboard");
+        } catch (error) {
+            if (error.response && error.response.data) {
+                setErrorMessage(error.response.data.message);
+            }
         }
     }
 
@@ -128,16 +145,20 @@ function SubjectForm() {
 
     async function handleDeleting() {
         if (window.confirm("Tem certeza?")) {
-            const response = await api.delete(`/coordinator/subject/${params.id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
-                }
-            });
+            try {
+                const response = await api.delete(`/coordinator/subject/${params.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                    }
+                });
 
-            if (response.status === 204) {
-                alert("Disciplina removida com sucesso!");
-                navigate("/coordinator/dashboard");
+                if (response.status === 204) {
+                    alert("Disciplina removida com sucesso!");
+                }
+            } catch (error) {
+                alert("Houve um erro em nosso servidor, tente novamente mais tarde!");
             }
+            navigate("/coordinator/dashboard");
         }
     }
 
@@ -158,6 +179,7 @@ function SubjectForm() {
 
                     <label htmlFor="code">Código</label>
                     <input
+                        disabled={params.id ? true : false}
                         type="text"
                         name="code"
                         value={code}
@@ -226,8 +248,8 @@ function SubjectForm() {
                         onChange={e => setSummary(e.target.value)}
                         placeholder="Ementa da disciplina..."
                     ></textarea>
-
                     <button type="submit">Submeter</button>
+                    {errorMessage && <span>{errorMessage}</span>}
                 </form>
             </div>
         </div>

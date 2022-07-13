@@ -14,16 +14,22 @@ function CoordinatorDashboard() {
 
     useEffect(() => {
         async function handleInit() {
-            const response = await api.get("/coordinator/subject", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
-                }
-            });
+            try {
+                const response = await api.get("/coordinator/subject", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+                    }
+                });
 
-            if (response.status === 200) {
-                setSubjects(response.data.subjects);
-                setFlowchartId(response.data.flowchart_id);
-                setFlowchartName(response.data.flowchart_name);
+                if (response.status === 200) {
+                    setSubjects(response.data.subjects);
+                    setFlowchartId(response.data.flowchart_id);
+                    setFlowchartName(response.data.flowchart_name);
+                }
+            } catch (error) {
+                alert("Houve um erro em nosso servidor, tente novamente mais tarde!");
+                deleteCredentials();
+                navigate("/");
             }
         }
 
@@ -55,10 +61,6 @@ function CoordinatorDashboard() {
         <div id="page-container">
             <div id="admin-dashboard-content">
                 <div id="page-header">
-                    <div id="user-container">
-                        <FaUserCircle size={26} />
-                        <span>Espaço do Coordenador</span>
-                    </div>
                     <div id="logout-container">
                         <button onClick={handleLogout}>
                             Sair
