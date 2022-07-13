@@ -1,22 +1,23 @@
-import {useState, useEffect} from 'react';
-import {SteppedLineTo} from 'react-lineto';
-import {MdLogout, MdShare} from 'react-icons/md';
-import {BiLogOutCircle} from 'react-icons/bi';
+import { useState, useEffect } from 'react';
+import { SteppedLineTo } from 'react-lineto';
+import { MdLogout, MdShare } from 'react-icons/md';
+import { BiLogOutCircle } from 'react-icons/bi';
 import './styles.css';
-import {useNavigate, useParams} from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../services/api';
-import {deleteCredentials} from '../../../auth';
+import { deleteCredentials } from '../../../auth';
 
-import {Windmill} from 'react-activity';
+import { Dots, Windmill } from 'react-activity';
 import 'react-activity/dist/library.css';
 
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
   const [subjectTimeout, setSubjectTimeout] = useState(null);
-  const {id} = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [hasArchivedSubjects, setHasArchivedSubjects] = useState(true);
 
@@ -24,6 +25,10 @@ function Flowchart() {
   const [flowchartName, setFlowchartName] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const [privacySettings, setPrivacySettings] = useState({});
+  const [areSettingsBeingUpdated, setAreSettingsBeingUpdated] = useState(false);
 
   const colors = [
     '#F55',
@@ -73,6 +78,57 @@ function Flowchart() {
     handleInit();
   }, []);
 
+  useEffect(() => {
+    if (areSettingsBeingUpdated) {
+      handlePrivacySettingsUpdate();
+    }
+  }, [areSettingsBeingUpdated]);
+
+  function openPrivacyModal() {
+    setShowPrivacyModal(true);
+    setModalLoading(true);
+    getPrivacySettings();
+  }
+
+  async function getPrivacySettings() {
+    try {
+      const response = await api.get(`/student/privacy/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+        }
+      });
+
+      if (response.status === 200) {
+        setPrivacySettings(response.data);
+        setModalLoading();
+      }
+    } catch (error) {
+      alert('Ocorreu um erro, tente novamente mais tarde!');
+      setShowPrivacyModal(false);
+    }
+  }
+
+  async function handlePrivacySettingsUpdate() {
+    if (!privacySettings.is_public) {
+      navigator.clipboard
+        .writeText("");
+    }
+
+    try {
+      await api.put(`/student/privacy/${id}`,
+        privacySettings,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("myFlowchart@token")}`
+          }
+        });
+
+      setAreSettingsBeingUpdated(false);
+    } catch (error) {
+      alert('Ocorreu um erro, tente novamente mais tarde!');
+    }
+  }
+
   function handleShareUrl() {
     navigator.clipboard
       .writeText(`${window.origin}/flowchart/${studentId}/${id}`)
@@ -100,7 +156,7 @@ function Flowchart() {
   }
 
   async function updateSubjectsState(semester, subjectIndex) {
-    const newFlowchart = {...flowchart};
+    const newFlowchart = { ...flowchart };
     const subject = newFlowchart[semester][subjectIndex];
 
     if (subject.status === 'todo') {
@@ -143,7 +199,7 @@ function Flowchart() {
             (item) => item.from === localSubject && item.to === subject.code
           )
         ) {
-          localPrerequisitesPath.push({from: localSubject, to: subject.code});
+          localPrerequisitesPath.push({ from: localSubject, to: subject.code });
         }
       }
     }
@@ -220,26 +276,29 @@ function Flowchart() {
   }
 
   useEffect(() => {
-    if (!loading) {
-      document
-        .getElementById('loading-modal-container')
-        .classList.toggle('hide');
+    if (!modalLoading) {
+      const modalContainer = document.getElementById('loading-modal-container')
+
+      if (modalContainer) {
+        modalContainer.classList.toggle('hide');
+      }
 
       setTimeout(
         () => document.getElementById('loading-modal-container').remove(),
         1000
       );
     }
-  }, [loading]);
+  }, [modalLoading]);
 
   return (
     <div
       id={'page-container' + (loading ? '-loading' : '')}
-      class="flowchart-page-container"
+      className="flowchart-page-container"
     >
       <div id="loading-modal-container">
         <Windmill color="white" size={40} />
       </div>
+      {/* Modal da disciplina */}
       {showModal && (
         <div
           id="subject-modal-container"
@@ -252,6 +311,50 @@ function Flowchart() {
           </div>
         </div>
       )}
+      {/* Modal de compartilhamento/privacidade */}
+      {showPrivacyModal && (
+        <div
+          id="privacy-modal-container"
+          onClick={() => setShowPrivacyModal(!showPrivacyModal)}
+        >
+          <div id="privacy-modal" onClick={(e) => e.stopPropagation()}>
+            {
+              modalLoading ? <Dots color="#7D83FF" size={40} /> : (
+                <form onSubmit={e => e.preventDefault()}>
+                  <label htmlFor="is_public">Fluxograma público</label>
+                  <select
+                    name="is_public"
+                    onChange={e => {
+                      setPrivacySettings({ ...privacySettings, is_public: e.target.value === "true" });
+                      setAreSettingsBeingUpdated(true);
+                    }}
+                    value={privacySettings.is_public}
+                  >
+                    <option value={true}>Habilitado</option>
+                    <option value={false}>Desabilitado</option>
+                  </select>
+
+                  <label htmlFor="has_public_comments">Comentários públicos</label>
+                  <select
+                    name="has_public_comments"
+                    onChange={e => {
+                      setPrivacySettings({ ...privacySettings, has_public_comments: e.target.value === "true" });
+                      setAreSettingsBeingUpdated(true);
+                    }}
+                    value={privacySettings.has_public_comments}
+                  >
+                    <option value={true}>Habilitado</option>
+                    <option value={false}>Desabilitado</option>
+                  </select>
+                  {
+                    privacySettings.is_public && <button type="button" onClick={handleShareUrl}>Compartilhar Link</button>
+                  }
+                </form>
+              )
+            }
+          </div>
+        </div>
+      )}
       <div id="page-header">
         <p></p>
         <button onClick={handleLogout} title="Sair">
@@ -261,7 +364,7 @@ function Flowchart() {
         <button
           id="share-button"
           title="Compartilhar link do fluxograma"
-          onClick={handleShareUrl}
+          onClick={openPrivacyModal}
         >
           <MdShare color="white" />
         </button>
@@ -306,8 +409,8 @@ function Flowchart() {
                             subject.status === 'todo'
                               ? '#F4F5FF'
                               : subject.status === 'doing'
-                              ? '#FFBABA'
-                              : '#7D83FF',
+                                ? '#FFBABA'
+                                : '#7D83FF',
                         }}
                       >
                         <p className="subject-code">{subject.code}</p>
@@ -370,8 +473,8 @@ function Flowchart() {
                             subject.status === 'todo'
                               ? '#F4F5FF'
                               : subject.status === 'doing'
-                              ? '#FFBABA'
-                              : '#7D83FF',
+                                ? '#FFBABA'
+                                : '#7D83FF',
                         }}
                       >
                         <p className="subject-code">{subject.code}</p>
