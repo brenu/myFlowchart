@@ -9,7 +9,8 @@ export default class FormController {
           rules.required(),
           rules.unique({ table: 'users', column: 'username' })
         ]),
-        recovery_email: schema.string.optional({}, [
+        recovery_email: schema.string({}, [
+          rules.required(),
           rules.email()
         ]),
         password: schema.string({}, [
@@ -26,6 +27,7 @@ export default class FormController {
           'password.required': 'password~A senha é obrigatória',
           'password.minLength': 'password~A senha deve possuir ao menos {{ options.minLength }} caracteres',
           'recovery_email.email': 'email~E-Mail inválido',
+          'recovery_email.required':'email~O e-mail é obrigatório'
         }
       });
 

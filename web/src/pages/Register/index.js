@@ -15,7 +15,7 @@ import api from '../../services/api';
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recovery_email, setRecovery_email] = useState('');
 
   const [role, setRole] = useState('student');
   const [flowchartName, setFlowchartName] = useState('');
@@ -60,16 +60,17 @@ function Register() {
 
   useEffect(() => {
     setEmailError('');
-  }, [recoveryEmail]);
+  }, [recovery_email]);
 
   async function validateForm() {
     setLoading(true);
     try {
-      await api.post('/form-validation', {username, password, recoveryEmail});
+      await api.post('/form-validation', {username, password, recovery_email});
       setStep(2);
     } catch (error) {
       let fieldName = error.response.data.message.split('~')[0];
 
+      console.log(fieldName);
       if (fieldName) {
         let message = error.response.data.message.split('~')[1];
         switch (fieldName) {
@@ -116,7 +117,7 @@ function Register() {
         const result = await api.post('/student', {
           username,
           password,
-          recovery_email: recoveryEmail,
+          recovery_email: recovery_email,
           flowchart_ids: selectedFlowcharts.map((item) => item.id),
         });
 
@@ -138,7 +139,7 @@ function Register() {
         const result = await api.post('/coordinator', {
           username,
           password,
-          recovery_email: recoveryEmail,
+          recovery_email: recovery_email,
           flowchartName,
         });
 
@@ -206,8 +207,8 @@ function Register() {
                 <div className="form-field-container">
                   <input
                     type="email"
-                    value={recoveryEmail}
-                    onChange={(e) => setRecoveryEmail(e.target.value)}
+                    value={recovery_email}
+                    onChange={(e) => setRecovery_email(e.target.value)}
                     placeholder="E-mail de recuperação"
                   />
                   {emailError && (
@@ -241,7 +242,7 @@ function Register() {
                   disabled={
                     !username ||
                     !password ||
-                    !recoveryEmail ||
+                    !recovery_email ||
                     usernameError ||
                     passwordError ||
                     emailError

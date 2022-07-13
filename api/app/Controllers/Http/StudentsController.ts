@@ -16,8 +16,9 @@ export default class StudentsController {
           rules.required(),
           rules.unique({ table: 'users', column: 'username' })
         ]),
-        recovery_email: schema.string.optional({}, [
-          rules.email()
+        recovery_email: schema.string({}, [
+          rules.email(),
+          rules.required()
         ]),
         password: schema.string({}, [
           rules.required(),
@@ -33,6 +34,7 @@ export default class StudentsController {
           'username.unique': 'Nome de usuário não disponível',
           'password.minLength': 'A senha deve possuir ao menos {{ options.minLength }} caracteres',
           'recovery_email.email': 'E-Mail inválido',
+          'recovery_email.required': 'O e-mail é obrigatório',
         }
       });
 

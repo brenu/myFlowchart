@@ -1,8 +1,20 @@
 import {useState, useEffect} from 'react';
 import {SteppedLineTo} from 'react-lineto';
 import {MdLogout, MdShare} from 'react-icons/md';
-import {BiLogOutCircle} from 'react-icons/bi';
-import './styles.css';
+import {
+  BiArrowBack,
+  BiBookContent,
+  BiComment,
+  BiCommentAdd,
+  BiMenu,
+  BiNote,
+  BiCube,
+  BiStar,
+} from 'react-icons/bi';
+
+import {GiConvergenceTarget} from 'react-icons/gi';
+import {IoMdClose} from 'react-icons/io';
+
 import {useNavigate, useParams} from 'react-router-dom';
 import api from '../../../services/api';
 import {deleteCredentials} from '../../../auth';
@@ -10,10 +22,13 @@ import {deleteCredentials} from '../../../auth';
 import {Windmill} from 'react-activity';
 import 'react-activity/dist/library.css';
 
+import './styles.css';
+import './modal.css';
+
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState({});
   const [subjectTimeout, setSubjectTimeout] = useState(null);
   const {id} = useParams();
@@ -72,6 +87,23 @@ function Flowchart() {
 
     handleInit();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      document
+        .getElementById('loading-modal-container')
+        .classList.toggle('hide');
+
+      setTimeout(
+        () => document.getElementById('loading-modal-container').remove(),
+        1000
+      );
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    console.log(selectedSubject);
+  }, [selectedSubject]);
 
   function handleShareUrl() {
     navigator.clipboard
@@ -220,17 +252,161 @@ function Flowchart() {
   }
 
   useEffect(() => {
-    if (!loading) {
-      document
-        .getElementById('loading-modal-container')
-        .classList.toggle('hide');
+    if (!showModal) setModalStep(3);
+  }, [showModal]);
 
-      setTimeout(
-        () => document.getElementById('loading-modal-container').remove(),
-        1000
-      );
-    }
-  }, [loading]);
+  const [modalStep, setModalStep] = useState(3);
+  const [visibleInput, setVisibleInput] = useState(false);
+
+  const Comment = (props) => {
+    return (
+      <div id="comment-container">
+        <p>{props.text}</p>
+        <p>{props.date_time}</p>
+      </div>
+    );
+  };
+
+  const SubjectModalContainer = () => {
+    return (
+      <div
+        id="subject-modal-background"
+        onClick={() => setShowModal(!showModal)}
+      >
+        <div id="subject-modal" onClick={(e) => e.stopPropagation()}>
+          <div>
+            {modalStep === 1 ? (
+              <div id="modal-left-btn">
+                <p>IV Semestre</p>
+              </div>
+            ) : (
+              <BiArrowBack
+                color="#aaabcb"
+                onClick={() => setModalStep(1)}
+                id="close-modal-btn"
+              />
+            )}
+
+            <IoMdClose
+              color="#aaabcb"
+              onClick={() => setShowModal(!showModal)}
+              id="close-modal-btn"
+            />
+          </div>
+          <p>Inteligência Artificial</p>
+          {modalStep > 1 && (
+            <p>
+              {modalStep === 2
+                ? 'Programa da disciplina'
+                : 'Suas anotações / Anotações de username'}
+            </p>
+          )}
+
+          {/* Página 1: Informações Básicas da Disciplina */}
+          {modalStep === 1 && (
+            <>
+              <div id="subject-info">
+                <div>
+                  <p>Código</p>
+                  <p>Status</p>
+                  <p>Professor</p>
+                  <p>Tags</p>
+                  <p>Carga Horária</p>
+                </div>
+                <div>
+                  <p>CET094</p>
+                  <div>
+                    <div /> <p>Cursando</p>
+                  </div>
+                  <p>Clemildo Gonçalvos / Não informado</p>
+                  <div>
+                    <p>Tags here</p>
+                  </div>
+                  <p>Teórica: 60h / Prática: 15h</p>
+                </div>
+              </div>
+              <hr />
+              <div onClick={() => setModalStep(2)} className="btn">
+                <BiBookContent size={20} color="#7d83ff" />
+                <p>Programa da disciplina</p>
+              </div>
+              <div onClick={() => setModalStep(3)} className="btn">
+                <BiNote size={20} color="#7d83ff" />
+                <p>Suas anotações / Anotações de username</p>
+              </div>
+            </>
+          )}
+          {/* Página 2: Programa da Disciplina */}
+          {modalStep === 2 && (
+            <>
+              <div id="subject-program">
+                <>
+                  <div>
+                    <BiMenu color="#7D83FF" size={15} />
+                    <p>Ementa</p>
+                  </div>
+                  <p>
+                    Conceitos básicos de algoritmos. Construção de algoritmos:
+                    estrutura de um programa, tipos de dados escalares e
+                    estruturados , estruturas de controle. Prática em construção
+                    de algoritmos: transcrição para uma linguagem de
+                    programação, depuração e documentação.
+                  </p>
+                </>
+                <hr />
+                <>
+                  <div>
+                    <GiConvergenceTarget color="#7D83FF" size={15} />
+                    <p>Objetivos</p>
+                  </div>
+                  <p>
+                    Desenvolver o raciocínio lógico e a capacidade de abstração
+                    de maneira intuitiva, tornando o aluno apto a propor
+                    soluções algorítmicas.
+                  </p>
+                </>
+                <hr />
+                <>
+                  <div>
+                    <BiCube color="#7D83FF" size={15} />
+                    <p>Metodologia</p>
+                  </div>
+                  <p>
+                    Aulas teóricas e práticas, iniciando com portugol e
+                    introduzindo paralelamente uma linguagem de programação.
+                  </p>
+                </>
+                <hr />
+                <>
+                  <div>
+                    <BiStar color="#7D83FF" size={17} />
+                    <p>Avaliação</p>
+                  </div>
+                  <p>Avaliação escrita e trabalho computacional.</p>
+                </>
+              </div>
+            </>
+          )}
+          {/* Página 3: Anotações do usuário */}
+          {modalStep === 3 && (
+            <>
+              <div id="subject-comments">
+                {[...Array(10)].map((e, i) => (
+                  <div className="subject-comment" key={i}>
+                    <p>12 de novembro, às 14:35</p>
+                    <p>
+                      Neque porro quisquam est qui dolorem ipsum quia dolor sit
+                      amet, consectetur, adipisci velit...
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -240,18 +416,7 @@ function Flowchart() {
       <div id="loading-modal-container">
         <Windmill color="white" size={40} />
       </div>
-      {showModal && (
-        <div
-          id="subject-modal-container"
-          onClick={() => setShowModal(!showModal)}
-        >
-          <div id="subject-modal" onClick={(e) => e.stopPropagation()}>
-            <span>{selectedSubject.code}</span>
-            <h3>{selectedSubject.name}</h3>
-            <p>{selectedSubject.summary}</p>
-          </div>
-        </div>
-      )}
+      {showModal && <SubjectModalContainer />}
       <div id="page-header">
         <p></p>
         <button onClick={handleLogout} title="Sair">
