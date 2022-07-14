@@ -25,6 +25,7 @@ import 'react-activity/dist/library.css';
 
 import './styles.css';
 import './modal.css';
+import {FaPaperPlane} from 'react-icons/fa';
 
 function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
@@ -39,6 +40,8 @@ function Flowchart() {
 
   const [studentId, setStudentId] = useState(0);
   const [flowchartName, setFlowchartName] = useState('');
+  const [username, setUsername] = useState('');
+  const [commentMessage, setCommentMessage] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -70,6 +73,12 @@ function Flowchart() {
     10: 'X',
   };
 
+  const statuses = {
+    todo: 'A fazer',
+    doing: 'Fazendo',
+    done: 'Completa',
+  };
+
   let statelessPrerequisites = [];
 
   useEffect(() => {
@@ -86,6 +95,7 @@ function Flowchart() {
         setFlowchart(response.data.subjects);
         setStudentId(response.data.student_id);
         setFlowchartName(response.data.flowchart_name);
+        setUsername(response.data.username);
       }
 
       setLoading(false);
@@ -96,26 +106,35 @@ function Flowchart() {
 
   useEffect(() => {
     if (!loading) {
-      document
-        .getElementById('loading-modal-container')
-        .classList.toggle('hide');
-
-      setTimeout(
-        () => document.getElementById('loading-modal-container').remove(),
-        1000
+      const loadingModalContainer = document.getElementById(
+        'loading-modal-container'
       );
+
+      if (loadingModalContainer) {
+        loadingModalContainer.classList.toggle('hide');
+      }
+
+      setTimeout(() => {
+        const loadingModalContainer = document.getElementById(
+          'loading-modal-container'
+        );
+
+        if (loadingModalContainer) {
+          loadingModalContainer.remove();
+        }
+      }, 1000);
     }
   }, [loading]);
-
-  useEffect(() => {
-    console.log(selectedSubject);
-  }, [selectedSubject]);
 
   useEffect(() => {
     if (areSettingsBeingUpdated) {
       handlePrivacySettingsUpdate();
     }
   }, [areSettingsBeingUpdated]);
+
+  useEffect(() => {
+    if (!showModal) setModalStep(1);
+  }, [showModal]);
 
   function openPrivacyModal() {
     setShowPrivacyModal(true);
@@ -290,7 +309,13 @@ function Flowchart() {
     }
   }
 
-  function handleSubjectClicks(e, subject, semester, subjectIndex) {
+  function handleSubjectClicks(
+    e,
+    subject,
+    semester,
+    subjectIndex,
+    isArchived = false
+  ) {
     if (e.detail === 1) {
       setSubjectTimeout(
         setTimeout(() => {
@@ -301,157 +326,49 @@ function Flowchart() {
       );
     } else if (e.detail === 2) {
       clearTimeout(subjectTimeout);
-      updateSubjectsState(semester, subjectIndex);
+      if (!isArchived) {
+        updateSubjectsState(semester, subjectIndex);
+      }
     }
   }
-
-  useEffect(() => {
-    if (!showModal) setModalStep(1);
-  }, [showModal]);
 
   const [modalStep, setModalStep] = useState(3);
   const [visibleInput, setVisibleInput] = useState(false);
 
-  const SubjectModalContainer = () => {
-    return (
-      <div
-        id="subject-modal-background"
-        onClick={() => setShowModal(!showModal)}
-      >
-        <div id="subject-modal" onClick={(e) => e.stopPropagation()}>
-          <div>
-            {modalStep === 1 ? (
-              <div id="modal-left-btn">
-                <p>Semestre {romanNumbers[selectedSubject.semester]}</p>
-              </div>
-            ) : (
-              <BiArrowBack
-                color="#aaabcb"
-                onClick={() => setModalStep(1)}
-                id="close-modal-btn"
-              />
-            )}
+  async function handleComment(e) {
+    e.preventDefault();
 
-            <IoMdClose
-              color="#aaabcb"
-              onClick={() => setShowModal(!showModal)}
-              id="close-modal-btn"
-            />
-          </div>
-          <p>{selectedSubject.name}</p>
-          {modalStep > 1 && (
-            <p>
-              {modalStep === 2
-                ? 'Programa da disciplina'
-                : 'Suas anotações / Anotações de username'}
-            </p>
-          )}
+    try {
+      const response = await api.post(
+        '/comments',
+        {
+          subject_id: selectedSubject.id,
+          content: commentMessage,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              'myFlowchart@token'
+            )}`,
+          },
+        }
+      );
 
-          {/* Página 1: Informações Básicas da Disciplina */}
-          {modalStep === 1 && (
-            <>
-              <div id="subject-info">
-                <div>
-                  <p>Código</p>
-                  <p>Status</p>
-                  <p>Professor</p>
-                  <p>Tags</p>
-                  <p>Carga Horária</p>
-                </div>
-                <div>
-                  <p>{selectedSubject.code}</p>
-                  <div>
-                    <div /> <p>{selectedSubject.status}</p>
-                  </div>
-                  <p>Clemildo Gonçalvos / Não informado</p>
-                  <div>
-                    <p>Tags here</p>
-                  </div>
-                  <p>Teórica: 60h / Prática: 15h</p>
-                </div>
-              </div>
-              <hr />
-              <div onClick={() => setModalStep(2)} className="btn">
-                <BiBookContent size={20} color="#7d83ff" />
-                <p>Programa da disciplina</p>
-              </div>
-              <div onClick={() => setModalStep(3)} className="btn">
-                <BiNote size={20} color="#7d83ff" />
-                <p>Suas anotações / Anotações de username</p>
-              </div>
-            </>
-          )}
-          {/* Página 2: Programa da Disciplina */}
-          {modalStep === 2 && (
-            <>
-              <div id="subject-program">
-                <>
-                  <div>
-                    <BiMenu color="#7D83FF" size={15} />
-                    <p>Ementa</p>
-                  </div>
-                  <p>
-                    Conceitos básicos de algoritmos. Construção de algoritmos:
-                    estrutura de um programa, tipos de dados escalares e
-                    estruturados , estruturas de controle. Prática em construção
-                    de algoritmos: transcrição para uma linguagem de
-                    programação, depuração e documentação.
-                  </p>
-                </>
-                <hr />
-                <>
-                  <div>
-                    <GiConvergenceTarget color="#7D83FF" size={15} />
-                    <p>Objetivos</p>
-                  </div>
-                  <p>
-                    Desenvolver o raciocínio lógico e a capacidade de abstração
-                    de maneira intuitiva, tornando o aluno apto a propor
-                    soluções algorítmicas.
-                  </p>
-                </>
-                <hr />
-                <>
-                  <div>
-                    <BiCube color="#7D83FF" size={15} />
-                    <p>Metodologia</p>
-                  </div>
-                  <p>
-                    Aulas teóricas e práticas, iniciando com portugol e
-                    introduzindo paralelamente uma linguagem de programação.
-                  </p>
-                </>
-                <hr />
-                <>
-                  <div>
-                    <BiStar color="#7D83FF" size={17} />
-                    <p>Avaliação</p>
-                  </div>
-                  <p>Avaliação escrita e trabalho computacional.</p>
-                </>
-              </div>
-            </>
-          )}
-          {/* Página 3: Anotações do usuário */}
-          {modalStep === 3 && (
-            <>
-              <div id="subject-comments">
-                {[...Array(10)].map((e, i) => (
-                  <div className="subject-comment" key={i}>
-                    <p>12 de novembro, às 14:35</p>
-                    <p>
-                      Neque porro quisquam est qui dolorem ipsum quia dolor sit
-                      amet, consectetur, adipisci velit...
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
+      if (response.status === 201) {
+        setSelectedSubject({
+          ...selectedSubject,
+          comments: [
+            ...selectedSubject.comments,
+            {content: commentMessage, created_at: new Date().toISOString()},
+          ],
+        });
+
+        setCommentMessage('');
+      }
+    } catch (error) {
+      alert('Ocorreu um erro, tente novamente!');
+    }
+  }
 
   return (
     <div
@@ -462,7 +379,166 @@ function Flowchart() {
         <Windmill color="white" size={40} />
       </div>
       {/* Modal da disciplina */}
-      {showModal && <SubjectModalContainer />}
+      {showModal && (
+        <div
+          id="subject-modal-background"
+          onClick={() => setShowModal(!showModal)}
+        >
+          <div id="subject-modal" onClick={(e) => e.stopPropagation()}>
+            <div>
+              {modalStep === 1 ? (
+                <div id="modal-left-btn">
+                  <p>Semestre {romanNumbers[selectedSubject.semester]}</p>
+                </div>
+              ) : (
+                <BiArrowBack
+                  color="#aaabcb"
+                  onClick={() => setModalStep(1)}
+                  id="close-modal-btn"
+                />
+              )}
+
+              <IoMdClose
+                color="#aaabcb"
+                onClick={() => setShowModal(!showModal)}
+                id="close-modal-btn"
+              />
+            </div>
+            <p>{selectedSubject.name}</p>
+            {modalStep > 1 && (
+              <p>
+                {modalStep === 2
+                  ? 'Programa da disciplina'
+                  : `Suas anotações / Anotações de ${username}`}
+              </p>
+            )}
+
+            {/* Página 1: Informações Básicas da Disciplina */}
+            {modalStep === 1 && (
+              <>
+                <div id="subject-info">
+                  <div>
+                    <p>Código</p>
+                    <p>Status</p>
+                    <p>Professor</p>
+                    <p>Tags</p>
+                    <p>Carga Horária</p>
+                  </div>
+                  <div>
+                    <p>{selectedSubject.code}</p>
+                    <div>
+                      <div /> <p>{statuses[selectedSubject.status]}</p>
+                    </div>
+                    <p>Clemildo Gonçalvos / Não informado</p>
+                    <div>
+                      <p>Tags here</p>
+                    </div>
+                    <p>Teórica: 60h / Prática: 15h</p>
+                  </div>
+                </div>
+                <hr />
+                <div onClick={() => setModalStep(2)} className="btn">
+                  <BiBookContent size={20} color="#7d83ff" />
+                  <p>Programa da disciplina</p>
+                </div>
+                <div onClick={() => setModalStep(3)} className="btn">
+                  <BiNote size={20} color="#7d83ff" />
+                  <p>Suas anotações / Anotações de {username}</p>
+                </div>
+              </>
+            )}
+            {/* Página 2: Programa da Disciplina */}
+            {modalStep === 2 && (
+              <>
+                <div id="subject-program">
+                  <>
+                    <div>
+                      <BiMenu color="#7D83FF" size={15} />
+                      <p>Ementa</p>
+                    </div>
+                    <p>
+                      Conceitos básicos de algoritmos. Construção de algoritmos:
+                      estrutura de um programa, tipos de dados escalares e
+                      estruturados , estruturas de controle. Prática em
+                      construção de algoritmos: transcrição para uma linguagem
+                      de programação, depuração e documentação.
+                    </p>
+                  </>
+                  <hr />
+                  <>
+                    <div>
+                      <GiConvergenceTarget color="#7D83FF" size={15} />
+                      <p>Objetivos</p>
+                    </div>
+                    <p>
+                      Desenvolver o raciocínio lógico e a capacidade de
+                      abstração de maneira intuitiva, tornando o aluno apto a
+                      propor soluções algorítmicas.
+                    </p>
+                  </>
+                  <hr />
+                  <>
+                    <div>
+                      <BiCube color="#7D83FF" size={15} />
+                      <p>Metodologia</p>
+                    </div>
+                    <p>
+                      Aulas teóricas e práticas, iniciando com portugol e
+                      introduzindo paralelamente uma linguagem de programação.
+                    </p>
+                  </>
+                  <hr />
+                  <>
+                    <div>
+                      <BiStar color="#7D83FF" size={17} />
+                      <p>Avaliação</p>
+                    </div>
+                    <p>Avaliação escrita e trabalho computacional.</p>
+                  </>
+                </div>
+              </>
+            )}
+            {/* Página 3: Anotações do usuário */}
+            {modalStep === 3 && (
+              <>
+                <div id="subject-comments">
+                  {selectedSubject.comments.map((comment, index) => {
+                    const date = new Date(comment.created_at);
+
+                    const day = date.getDate();
+                    const month = date.toLocaleString('pt-BR', {month: 'long'});
+                    const time = date.toLocaleTimeString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    });
+
+                    return (
+                      <div className="subject-comment" key={index}>
+                        <p>
+                          {day} de {month}, às {time}
+                        </p>
+                        <p>{comment.content}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <form id="comment-form" onSubmit={handleComment}>
+                  <input
+                    autofocus="autofocus"
+                    type="text"
+                    value={commentMessage}
+                    onChange={(e) => setCommentMessage(e.target.value)}
+                    placeholder="Anotação aqui..."
+                  />
+                  <button type="submit">
+                    <FaPaperPlane />
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal de compartilhamento/privacidade */}
       {showPrivacyModal && (
@@ -626,7 +702,8 @@ function Flowchart() {
                             e,
                             subject,
                             semester,
-                            subjectIndex
+                            subjectIndex,
+                            true
                           )
                         }
                         style={{
