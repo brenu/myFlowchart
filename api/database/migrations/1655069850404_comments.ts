@@ -8,15 +8,15 @@ export default class Comments extends BaseSchema {
       table.increments('id')
       table.integer('subject_id').notNullable()
       table.integer('owner_id').notNullable()
-      table.string('content').notNullable()
+      table.text('content').notNullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
-      table.foreign('subject_id').references('id').inTable('subjects');
-      table.foreign('owner_id').references('id').inTable('student_flowcharts');
+      table.foreign('subject_id').references('id').inTable('subjects')
+      table.foreign('owner_id').references('id').inTable('student_flowcharts')
     })
   }
 

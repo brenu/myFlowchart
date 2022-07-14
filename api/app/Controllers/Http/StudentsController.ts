@@ -91,7 +91,8 @@ export default class StudentsController {
             for (let item of semesters) {
               subjects[item.$original.semester] = (
                 await Database.rawQuery(`SELECT
-                subjects.id, name, code, summary, status, is_archived
+                subjects.id, name, code, summary, status, is_archived, theoretical_load,
+                practical_load, professor, objective, methodology, assessment
                 FROM subjects
                 INNER JOIN student_subjects ON subjects.id = student_subjects.subject_id
                 WHERE student_subjects.student_id = ${user.id}

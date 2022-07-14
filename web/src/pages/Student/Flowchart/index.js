@@ -421,7 +421,6 @@ function Flowchart() {
                     <p>Código</p>
                     <p>Status</p>
                     <p>Professor</p>
-                    <p>Tags</p>
                     <p>Carga Horária</p>
                   </div>
                   <div>
@@ -429,11 +428,15 @@ function Flowchart() {
                     <div>
                       <div /> <p>{statuses[selectedSubject.status]}</p>
                     </div>
-                    <p>Clemildo Gonçalvos / Não informado</p>
-                    <div>
-                      <p>Tags here</p>
-                    </div>
-                    <p>Teórica: 60h / Prática: 15h</p>
+                    <p>
+                      {selectedSubject.professor
+                        ? selectedSubject.professor
+                        : 'Não informado'}
+                    </p>
+                    <p>
+                      Teórica: {selectedSubject.theoretical_load}h / Prática:{' '}
+                      {selectedSubject.practical_load}h
+                    </p>
                   </div>
                 </div>
                 <hr />
@@ -456,13 +459,7 @@ function Flowchart() {
                       <BiMenu color="#7D83FF" size={15} />
                       <p>Ementa</p>
                     </div>
-                    <p>
-                      Conceitos básicos de algoritmos. Construção de algoritmos:
-                      estrutura de um programa, tipos de dados escalares e
-                      estruturados , estruturas de controle. Prática em
-                      construção de algoritmos: transcrição para uma linguagem
-                      de programação, depuração e documentação.
-                    </p>
+                    <p>{selectedSubject.summary}</p>
                   </>
                   <hr />
                   <>
@@ -470,11 +467,7 @@ function Flowchart() {
                       <GiConvergenceTarget color="#7D83FF" size={15} />
                       <p>Objetivos</p>
                     </div>
-                    <p>
-                      Desenvolver o raciocínio lógico e a capacidade de
-                      abstração de maneira intuitiva, tornando o aluno apto a
-                      propor soluções algorítmicas.
-                    </p>
+                    <p>{selectedSubject.objective}</p>
                   </>
                   <hr />
                   <>
@@ -482,10 +475,7 @@ function Flowchart() {
                       <BiCube color="#7D83FF" size={15} />
                       <p>Metodologia</p>
                     </div>
-                    <p>
-                      Aulas teóricas e práticas, iniciando com portugol e
-                      introduzindo paralelamente uma linguagem de programação.
-                    </p>
+                    <p>{selectedSubject.methodology}</p>
                   </>
                   <hr />
                   <>
@@ -493,7 +483,7 @@ function Flowchart() {
                       <BiStar color="#7D83FF" size={17} />
                       <p>Avaliação</p>
                     </div>
-                    <p>Avaliação escrita e trabalho computacional.</p>
+                    <p>{selectedSubject.assessment}</p>
                   </>
                 </div>
               </>

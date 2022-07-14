@@ -20,7 +20,25 @@ export default class Subject extends BaseModel {
   public code: string
 
   @column()
+  public professor: string
+
+  @column()
+  public theoretical_load: number
+
+  @column()
+  public practical_load: number
+
+  @column()
   public summary: string
+
+  @column()
+  public objective: string
+
+  @column()
+  public methodology: string
+
+  @column()
+  public assessment: string
 
   @column()
   public is_archived: boolean
@@ -33,14 +51,13 @@ export default class Subject extends BaseModel {
 
   @afterCreate()
   public static async applyToStudents(subject: Subject) {
-    const students = await StudentFlowchart.query()
-      .where("flowchart_id", subject.flowchart_id);
+    const students = await StudentFlowchart.query().where('flowchart_id', subject.flowchart_id)
 
     const studentSubjects = students.map((student) => ({
       student_id: student.id,
-      subject_id: subject.id
-    }));
+      subject_id: subject.id,
+    }))
 
-    await StudentSubject.createMany(studentSubjects);
+    await StudentSubject.createMany(studentSubjects)
   }
 }
