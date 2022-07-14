@@ -11,7 +11,9 @@ export default class CoordinatorsController {
       const newUserSchema = schema.create({
         username: schema.string({}, [
           rules.required(),
-          rules.unique({table: 'users', column: 'username'})
+          rules.maxLength(30),
+          rules.usernameValidation(),
+          rules.unique({ table: 'users', column: 'username' })
         ]),
         recovery_email: schema.string.optional({}, [
           rules.email()
@@ -28,15 +30,17 @@ export default class CoordinatorsController {
           rules.unique({table: 'flowcharts', column: 'name'})
         ])
       });
-      
+
       const userData = await request.validate({
         schema: newUserSchema,
         messages: {
-          'username.required': 'O nome de usuário é obrigatório',
-          'password.required': 'A senha é obrigatória',
-          'username.unique': 'Nome de usuário não disponível',
-          'password.minLength': 'A senha deve possuir ao menos {{ options.minLength }} caracteres',
-          'recovery_email.email': 'E-Mail inválido',
+          'username.required': 'username~O nome de usuário é obrigatório',
+          'username.unique': 'username~Nome de usuário não disponível',
+          'username.maxLength': 'username~O nome de usuário deve possuir, no máximo, 30 caracteres',
+          'password.required': 'password~A senha é obrigatória',
+          'password.minLength': 'password~A senha deve possuir ao menos {{ options.minLength }} caracteres',
+          'recovery_email.email': 'email~E-Mail inválido',
+          'recovery_email.required':'email~O e-mail é obrigatório'
         }
       });
 
@@ -47,7 +51,7 @@ export default class CoordinatorsController {
           'flowchartName.unique': 'Já existe um curso com o mesmo nome'
         }
       });
-  
+
       const newCoordinator = await User.create({
         ...userData,
         role: "coordinator"
@@ -64,7 +68,7 @@ export default class CoordinatorsController {
         username: newCoordinator.username,
         id: newCoordinator.id
       });
-      
+
     } catch (error) {
       if (error.messages && error.messages.errors) {
         return response.status(400).json({message: error.messages.errors[0].message});

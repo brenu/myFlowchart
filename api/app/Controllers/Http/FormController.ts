@@ -27,9 +27,7 @@ export default class FormController {
           'username.required': 'username~O nome de usuário é obrigatório',
           'username.unique': 'username~Nome de usuário não disponível',
           'username.maxLength': 'username~O nome de usuário deve possuir, no máximo, 30 caracteres',
-          'username.usernameValidation':"username~O nome de usuário deve conter apenas letras, dígitos ou underline",
           'password.required': 'password~A senha é obrigatória',
-
           'password.minLength': 'password~A senha deve possuir ao menos {{ options.minLength }} caracteres',
           'recovery_email.email': 'email~E-Mail inválido',
           'recovery_email.required':'email~O e-mail é obrigatório'
