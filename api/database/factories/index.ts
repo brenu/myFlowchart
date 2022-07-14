@@ -1,43 +1,94 @@
-import Factory from "@ioc:Adonis/Lucid/Factory"
-import Prerequisite from "App/Models/Prerequisite"
-import Subject from "App/Models/Subject"
-import User from "App/Models/User"
+import Factory from '@ioc:Adonis/Lucid/Factory'
+import Prerequisite from 'App/Models/Prerequisite'
+import Subject from 'App/Models/Subject'
+import User from 'App/Models/User'
 
 // import Factory from '@ioc:Adonis/Lucid/Factory'
-export const UserFactory = Factory
-  .define(User, ({ faker }) => {
+export const UserFactory = Factory.define(User, ({ faker }) => {
+  return {
+    username: faker.internet.userName(),
+    password: faker.internet.password(),
+    role: 'student',
+  }
+}).build()
+
+export const SubjectFactory = Factory.define(Subject, ({ faker }) => {
+  return {
+    name: faker.name.jobArea(),
+    semester: parseInt((Math.random() * (9 - 1) + 1).toString()),
+    code: `CET-${parseInt((Math.random() * (999 - 100) + 100).toString())}`,
+    practical_load: parseInt((Math.random() * (120 - 0) + 0).toString()),
+    theoretical_load: parseInt((Math.random() * (120 - 0) + 0).toString()),
+    professor: faker.name.firstName(),
+    summary: faker.lorem.paragraph(),
+    objective: faker.lorem.paragraph(),
+    methodology: faker.lorem.paragraph(),
+    assessment: faker.lorem.paragraph(),
+    flowchart_id: 1,
+  }
+}).build()
+
+export const PrerequisiteFactory = Factory.define(Prerequisite, async () => {
+  const isAlreadyCreated = false
+
+  while (!isAlreadyCreated) {
+    const randomValue = parseInt((Math.random() * (30 - 1) + 1).toString())
+
+    const randomSubject = await Subject.find(randomValue)
+
+    if (!randomSubject) {
+      continue
+    }
+
+    const prerequisitesCount = await Prerequisite.query().where('subject_id', randomSubject.id)
+
+    if (prerequisitesCount.length > 2) {
+      continue
+    }
+
+    const randomDistance = getDistance()
+
+    const availableSubjects = await Subject.query().where(
+      'semester',
+      randomSubject.semester - randomDistance
+    )
+
+    if (availableSubjects.length === 0) {
+      continue
+    }
+
+    const randomAvailableSubject =
+      availableSubjects[Math.floor(Math.random() * availableSubjects.length)]
+
+    const doesRelationshipAlreadyExist = await Prerequisite.query()
+      .where('prerequisite_id', randomAvailableSubject.id)
+      .where('subject_id', randomSubject.id)
+      .first()
+
+    if (doesRelationshipAlreadyExist) {
+      continue
+    }
+
     return {
-      username: faker.internet.userName(),
-      password: faker.internet.password(),
-      role: "student"
+      subject_id: randomSubject.id,
+      prerequisite_id: randomAvailableSubject.id,
     }
-  })
-  .build()
+  }
 
-export const SubjectFactory = Factory
-  .define(Subject, ({ faker }) => {
-    return {
-      name: faker.name.jobArea(),
-      semester: parseInt((Math.random() * (9 - 1) + 1).toString()),
-      code: `CET-${parseInt((Math.random() * (999 - 100) + 100).toString())}`,
-      summary: faker.lorem.paragraph(),
-      flowchart_id: 1
-    }
-  })
-  .build()
+  return {
+    subject_id: 0,
+    prerequisite_id: 0,
+  }
+}).build()
 
-export const PrerequisiteFactory = Factory
-  .define(Prerequisite, () => {
-    const randomValue = parseInt((Math.random() * (30 - 1) + 1).toString());
-    let randomDistance = parseInt((Math.random() * (randomValue - 1) + 1).toString());
+function getDistance() {
+  const randomValue = parseInt((Math.random() * (11 - 1) + 1).toString())
 
-    if (randomDistance === 0) {
-      randomDistance += 1;
-    }
-
-    return {
-      subject_id: randomValue,
-      prerequisite_id: Math.abs(randomValue - randomDistance),
-    }
-  })
-  .build()
+  if (randomValue < 5) {
+    return 1
+  } else if (randomValue < 9) {
+    return 2
+  } else {
+    return 3
+  }
+}

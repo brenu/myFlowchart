@@ -27,43 +27,13 @@ import './styles.css';
 import './modal.css';
 import {FaPaperPlane} from 'react-icons/fa';
 
-const colors = [
-  '#F55',
-  '#4bb',
-  '#4bb543',
-  '#800080',
-  '#ff7700',
-  '#FFF',
-  '#FF6',
-  '#777',
-];
-
-let romanNumbers = {
-  1: 'I',
-  2: 'II',
-  3: 'III',
-  4: 'IV',
-  5: 'V',
-  6: 'VI',
-  7: 'VII',
-  8: 'VIII',
-  9: 'IX',
-  10: 'X',
-};
-
-const statuses = {
-  todo: 'A fazer',
-  doing: 'Fazendo',
-  done: 'Completa',
-};
-
 export default function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
-  const [subjectTimeout, setSubjectTimeout] = useState(null);
+  const [subjectTimeouts, setSubjectTimeouts] = useState(null);
   const {id} = useParams();
   const navigate = useNavigate();
   const [hasArchivedSubjects, setHasArchivedSubjects] = useState(true);
@@ -80,6 +50,51 @@ export default function Flowchart() {
   const [areSettingsBeingUpdated, setAreSettingsBeingUpdated] = useState(false);
 
   const commentsBeginningRef = useRef(null);
+  const [fullOpacitySubjects, setFullOpacitySubjects] = useState([]);
+  const [hideSubjects, setHideSubjects] = useState(false);
+
+  const [blockTimeout, setBlocktimeout] = useState(null);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] =
+    useState(false);
+
+  const colors = [
+    '#FF5555',
+    '#44bbbb',
+    '#64b6ac',
+    '#3777FF',
+    '#01295F',
+    '#B09E99',
+    '#D138BF',
+    '#503D3F',
+    '#4bb543',
+    '#447604',
+    '#392F5A',
+    '#1E1E24',
+    '#800080',
+    '#A42CD6',
+    '#ff7700',
+    '#FFFF66',
+  ];
+
+  let romanNumbers = {
+    1: 'I',
+    2: 'II',
+    3: 'III',
+    4: 'IV',
+    5: 'V',
+    6: 'VI',
+    7: 'VII',
+    8: 'VIII',
+    9: 'IX',
+    10: 'X',
+  };
+
+  const statuses = {
+    todo: 'A fazer',
+    doing: 'Fazendo',
+    done: 'Completa',
+  };
 
   let statelessPrerequisites = [];
 
@@ -148,6 +163,27 @@ export default function Flowchart() {
   useEffect(() => {
     scrollToTop();
   }, [selectedSubject]);
+  useEffect(() => {
+    const includedSubjects = [];
+
+    for (const item of prerequisitesPath) {
+      if (!includedSubjects.includes(item.from)) {
+        includedSubjects.push(item.from);
+      }
+
+      if (!includedSubjects.includes(item.to)) {
+        includedSubjects.push(item.to);
+      }
+    }
+
+    setFullOpacitySubjects(includedSubjects);
+  }, [prerequisitesPath]);
+
+  useEffect(() => {
+    if (fullOpacitySubjects.length) {
+      setHideSubjects(true);
+    }
+  }, [fullOpacitySubjects]);
 
   function openPrivacyModal() {
     setShowPrivacyModal(true);
@@ -270,10 +306,11 @@ export default function Flowchart() {
 
     const semesterKeys = Object.keys(flowchart);
 
-    for (let i = semester; i >= semesterKeys[0]; i--) {
-      if (semesterKeys.includes(i)) {
+    for (let i = semester; i >= parseInt(semesterKeys[0]); i--) {
+      if (semesterKeys.includes(i.toString())) {
         for (let j = 0; j < flowchart[i].length; j++) {
           if (previousSubjects.includes(flowchart[i][j].code)) {
+            console.log('oi');
             getPreviousSubjects(i, j);
           }
         }
@@ -290,7 +327,7 @@ export default function Flowchart() {
     const semesterKeys = Object.keys(flowchart);
 
     for (let i = semester; i < semesterKeys[semesterKeys.length - 1]; i++) {
-      if (semesterKeys.includes(i)) {
+      if (semesterKeys.includes(i.toString())) {
         for (let j = 0; j < flowchart[i].length; j++) {
           const nextSubject = flowchart[i][j];
 
@@ -326,8 +363,16 @@ export default function Flowchart() {
     subjectIndex,
     isArchived = false
   ) {
+    if (isBlocked && !wasBlockAlreadyActivated) {
+      setWasBlockAlreadyActivated(true);
+      return;
+    }
+
+    setIsBlocked(false);
+    setWasBlockAlreadyActivated(false);
+
     if (e.detail === 1) {
-      setSubjectTimeout(
+      setSubjectTimeouts(
         setTimeout(() => {
           setSelectedSubject({...subject, semester: semester});
           setShowModal((showModal) => !showModal);
@@ -335,11 +380,24 @@ export default function Flowchart() {
         }, 350)
       );
     } else if (e.detail === 2) {
-      clearTimeout(subjectTimeout);
+      clearTimeout(subjectTimeouts);
       if (!isArchived) {
         updateSubjectsState(semester, subjectIndex);
       }
     }
+  }
+
+  function handlePointerDown() {
+    setBlocktimeout(
+      setTimeout(() => {
+        setIsBlocked(true);
+      }, 250)
+    );
+  }
+
+  function handlePointerUp() {
+    clearTimeout(blockTimeout);
+    setBlocktimeout(null);
   }
 
   const [modalStep, setModalStep] = useState(3);
@@ -462,7 +520,6 @@ export default function Flowchart() {
                     <p>Código</p>
                     <p>Status</p>
                     <p>Professor</p>
-                    <p>Tags</p>
                     <p>Carga Horária</p>
                   </div>
                   <div>
@@ -470,11 +527,15 @@ export default function Flowchart() {
                     <div>
                       <div /> <p>{statuses[selectedSubject.status]}</p>
                     </div>
-                    <p>Clemildo Gonçalvos / Não informado</p>
-                    <div>
-                      <p>Tags here</p>
-                    </div>
-                    <p>Teórica: 60h / Prática: 15h</p>
+                    <p>
+                      {selectedSubject.professor
+                        ? selectedSubject.professor
+                        : 'Não informado'}
+                    </p>
+                    <p>
+                      Teórica: {selectedSubject.theoretical_load}h / Prática:{' '}
+                      {selectedSubject.practical_load}h
+                    </p>
                   </div>
                 </div>
                 <hr />
@@ -497,13 +558,7 @@ export default function Flowchart() {
                       <BiMenu color="#7D83FF" size={15} />
                       <p>Ementa</p>
                     </div>
-                    <p>
-                      Conceitos básicos de algoritmos. Construção de algoritmos:
-                      estrutura de um programa, tipos de dados escalares e
-                      estruturados , estruturas de controle. Prática em
-                      construção de algoritmos: transcrição para uma linguagem
-                      de programação, depuração e documentação.
-                    </p>
+                    <p>{selectedSubject.summary}</p>
                   </>
                   <hr />
                   <>
@@ -511,11 +566,7 @@ export default function Flowchart() {
                       <GiConvergenceTarget color="#7D83FF" size={15} />
                       <p>Objetivos</p>
                     </div>
-                    <p>
-                      Desenvolver o raciocínio lógico e a capacidade de
-                      abstração de maneira intuitiva, tornando o aluno apto a
-                      propor soluções algorítmicas.
-                    </p>
+                    <p>{selectedSubject.objective}</p>
                   </>
                   <hr />
                   <>
@@ -523,10 +574,7 @@ export default function Flowchart() {
                       <BiCube color="#7D83FF" size={15} />
                       <p>Metodologia</p>
                     </div>
-                    <p>
-                      Aulas teóricas e práticas, iniciando com portugol e
-                      introduzindo paralelamente uma linguagem de programação.
-                    </p>
+                    <p>{selectedSubject.methodology}</p>
                   </>
                   <hr />
                   <>
@@ -534,7 +582,7 @@ export default function Flowchart() {
                       <BiStar color="#7D83FF" size={17} />
                       <p>Avaliação</p>
                     </div>
-                    <p>Avaliação escrita e trabalho computacional.</p>
+                    <p>{selectedSubject.assessment}</p>
                   </>
                 </div>
               </>
@@ -675,11 +723,21 @@ export default function Flowchart() {
                       <div
                         key={subject.code}
                         className={`${subject.code} subject-container`}
-                        onMouseEnter={() =>
-                          updatePrerequisitesPath(semester, subjectIndex)
-                        }
-                        onMouseLeave={() => setPrerequisitesPath([])}
-                        onBlur={() => setPrerequisitesPath([])}
+                        onMouseEnter={() => {
+                          if (!isBlocked) {
+                            updatePrerequisitesPath(semester, subjectIndex);
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (!isBlocked) {
+                            setHideSubjects(false);
+                            setPrerequisitesPath([]);
+                          }
+                        }}
+                        onBlur={() => {
+                          setHideSubjects(false);
+                          setPrerequisitesPath([]);
+                        }}
                         onClick={(e) =>
                           handleSubjectClicks(
                             e,
@@ -688,6 +746,8 @@ export default function Flowchart() {
                             subjectIndex
                           )
                         }
+                        onPointerDown={handlePointerDown}
+                        onPointerUp={handlePointerUp}
                         style={{
                           color:
                             subject.status === 'todo' ? '#0D1321' : '#FFFBFE',
@@ -697,6 +757,11 @@ export default function Flowchart() {
                               : subject.status === 'doing'
                               ? '#FFBABA'
                               : '#7D83FF',
+                          opacity:
+                            hideSubjects &&
+                            !fullOpacitySubjects.includes(subject.code)
+                              ? '0.2'
+                              : '1.0',
                         }}
                       >
                         <p className="subject-code">{subject.code}</p>
@@ -721,6 +786,7 @@ export default function Flowchart() {
             orientation="h"
             borderColor={colors[prerequisiteIndex]}
             borderWidth={8}
+            className="prerequisite-line"
             zIndex={2}
             borderStyle="dashed"
             within="semesters-container"
@@ -739,11 +805,6 @@ export default function Flowchart() {
                       <div
                         key={subject.code}
                         className={`${subject.code} subject-container`}
-                        onMouseEnter={() =>
-                          updatePrerequisitesPath(semester, subjectIndex)
-                        }
-                        onMouseLeave={() => setPrerequisitesPath([])}
-                        onBlur={() => setPrerequisitesPath([])}
                         onClick={(e) =>
                           handleSubjectClicks(
                             e,

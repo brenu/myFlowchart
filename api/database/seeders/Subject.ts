@@ -4,8 +4,8 @@ import { PrerequisiteFactory, SubjectFactory } from 'Database/factories'
 
 export default class SubjectSeeder extends BaseSeeder {
   public async run() {
-    await SubjectFactory.createMany(30)
+    await SubjectFactory.createMany(50)
 
-    await PrerequisiteFactory.createMany(10);
+    await PrerequisiteFactory.createMany(75)
   }
 }
