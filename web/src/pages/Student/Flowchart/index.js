@@ -760,8 +760,13 @@ export default function Flowchart() {
                           opacity:
                             hideSubjects &&
                             !fullOpacitySubjects.includes(subject.code)
-                              ? '0.2'
+                              ? '0.25'
                               : '1.0',
+                          zIndex:
+                            hideSubjects &&
+                            !fullOpacitySubjects.includes(subject.code)
+                              ? 0
+                              : 3,
                         }}
                       >
                         <p className="subject-code">{subject.code}</p>
