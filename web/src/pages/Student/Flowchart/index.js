@@ -33,7 +33,7 @@ function Flowchart() {
   const [showModal, setShowModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
-  const [subjectTimeout, setSubjectTimeout] = useState(null);
+  const [subjectTimeouts, setSubjectTimeouts] = useState(null);
   const {id} = useParams();
   const navigate = useNavigate();
   const [hasArchivedSubjects, setHasArchivedSubjects] = useState(true);
@@ -49,15 +49,32 @@ function Flowchart() {
   const [privacySettings, setPrivacySettings] = useState({});
   const [areSettingsBeingUpdated, setAreSettingsBeingUpdated] = useState(false);
 
+  const [fullOpacitySubjects, setFullOpacitySubjects] = useState([]);
+  const [hideSubjects, setHideSubjects] = useState(false);
+
+  const [blockTimeout, setBlocktimeout] = useState(null);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] = useState(
+    false
+  );
+
   const colors = [
-    '#F55',
-    '#4bb',
+    '#FF5555',
+    '#44bbbb',
+    '#64b6ac',
+    '#3777FF',
+    '#01295F',
+    '#B09E99',
+    '#D138BF',
+    '#503D3F',
     '#4bb543',
+    '#447604',
+    '#392F5A',
+    '#1E1E24',
     '#800080',
+    '#A42CD6',
     '#ff7700',
-    '#FFF',
-    '#FF6',
-    '#777',
+    '#FFFF66',
   ];
 
   let romanNumbers = {
@@ -135,6 +152,28 @@ function Flowchart() {
   useEffect(() => {
     if (!showModal) setModalStep(1);
   }, [showModal]);
+
+  useEffect(() => {
+    const includedSubjects = [];
+
+    for (const item of prerequisitesPath) {
+      if (!includedSubjects.includes(item.from)) {
+        includedSubjects.push(item.from);
+      }
+
+      if (!includedSubjects.includes(item.to)) {
+        includedSubjects.push(item.to);
+      }
+    }
+
+    setFullOpacitySubjects(includedSubjects);
+  }, [prerequisitesPath]);
+
+  useEffect(() => {
+    if (fullOpacitySubjects.length) {
+      setHideSubjects(true);
+    }
+  }, [fullOpacitySubjects]);
 
   function openPrivacyModal() {
     setShowPrivacyModal(true);
@@ -234,8 +273,6 @@ function Flowchart() {
   }
 
   function getPreviousSubjects(semester, subjectIndex) {
-    let done = true;
-
     const subject = flowchart[semester][subjectIndex];
     const localPrerequisitesPath = [];
 
@@ -259,11 +296,11 @@ function Flowchart() {
 
     const semesterKeys = Object.keys(flowchart);
 
-    for (let i = semester; i >= semesterKeys[0]; i--) {
-      if (semesterKeys.includes(i)) {
+    for (let i = semester; i >= parseInt(semesterKeys[0]); i--) {
+      if (semesterKeys.includes(i.toString())) {
         for (let j = 0; j < flowchart[i].length; j++) {
           if (previousSubjects.includes(flowchart[i][j].code)) {
-            done = false;
+            console.log('oi');
             getPreviousSubjects(i, j);
           }
         }
@@ -280,7 +317,7 @@ function Flowchart() {
     const semesterKeys = Object.keys(flowchart);
 
     for (let i = semester; i < semesterKeys[semesterKeys.length - 1]; i++) {
-      if (semesterKeys.includes(i)) {
+      if (semesterKeys.includes(i.toString())) {
         for (let j = 0; j < flowchart[i].length; j++) {
           const nextSubject = flowchart[i][j];
 
@@ -316,8 +353,16 @@ function Flowchart() {
     subjectIndex,
     isArchived = false
   ) {
+    if (isBlocked && !wasBlockAlreadyActivated) {
+      setWasBlockAlreadyActivated(true);
+      return;
+    }
+
+    setIsBlocked(false);
+    setWasBlockAlreadyActivated(false);
+
     if (e.detail === 1) {
-      setSubjectTimeout(
+      setSubjectTimeouts(
         setTimeout(() => {
           setSelectedSubject({...subject, semester: semester});
           setShowModal((showModal) => !showModal);
@@ -325,11 +370,24 @@ function Flowchart() {
         }, 350)
       );
     } else if (e.detail === 2) {
-      clearTimeout(subjectTimeout);
+      clearTimeout(subjectTimeouts);
       if (!isArchived) {
         updateSubjectsState(semester, subjectIndex);
       }
     }
+  }
+
+  function handlePointerDown() {
+    setBlocktimeout(
+      setTimeout(() => {
+        setIsBlocked(true);
+      }, 250)
+    );
+  }
+
+  function handlePointerUp() {
+    clearTimeout(blockTimeout);
+    setBlocktimeout(null);
   }
 
   const [modalStep, setModalStep] = useState(3);
@@ -618,11 +676,21 @@ function Flowchart() {
                       <div
                         key={subject.code}
                         className={`${subject.code} subject-container`}
-                        onMouseEnter={() =>
-                          updatePrerequisitesPath(semester, subjectIndex)
-                        }
-                        onMouseLeave={() => setPrerequisitesPath([])}
-                        onBlur={() => setPrerequisitesPath([])}
+                        onMouseEnter={() => {
+                          if (!isBlocked) {
+                            updatePrerequisitesPath(semester, subjectIndex);
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (!isBlocked) {
+                            setHideSubjects(false);
+                            setPrerequisitesPath([]);
+                          }
+                        }}
+                        onBlur={() => {
+                          setHideSubjects(false);
+                          setPrerequisitesPath([]);
+                        }}
                         onClick={(e) =>
                           handleSubjectClicks(
                             e,
@@ -631,6 +699,8 @@ function Flowchart() {
                             subjectIndex
                           )
                         }
+                        onPointerDown={handlePointerDown}
+                        onPointerUp={handlePointerUp}
                         style={{
                           color:
                             subject.status === 'todo' ? '#0D1321' : '#FFFBFE',
@@ -640,6 +710,11 @@ function Flowchart() {
                               : subject.status === 'doing'
                               ? '#FFBABA'
                               : '#7D83FF',
+                          opacity:
+                            hideSubjects &&
+                            !fullOpacitySubjects.includes(subject.code)
+                              ? '0.2'
+                              : '1.0',
                         }}
                       >
                         <p className="subject-code">{subject.code}</p>
@@ -664,6 +739,7 @@ function Flowchart() {
             orientation="h"
             borderColor={colors[prerequisiteIndex]}
             borderWidth={8}
+            className="prerequisite-line"
             zIndex={2}
             borderStyle="dashed"
             within="semesters-container"
@@ -682,11 +758,6 @@ function Flowchart() {
                       <div
                         key={subject.code}
                         className={`${subject.code} subject-container`}
-                        onMouseEnter={() =>
-                          updatePrerequisitesPath(semester, subjectIndex)
-                        }
-                        onMouseLeave={() => setPrerequisitesPath([])}
-                        onBlur={() => setPrerequisitesPath([])}
                         onClick={(e) =>
                           handleSubjectClicks(
                             e,

@@ -114,6 +114,7 @@
   -webkit-tap-highlight-color: transparent;
   z-index: 1;
   transition: all 0.05s ease-in;
+  word-break: break-word;
 }
 
 .subject-container:hover {
@@ -154,6 +155,10 @@
 #archived-subjects-container #subjects-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+}
+
+.prerequisite-line {
+  opacity: 0.8;
 }
 
 @media (min-width: 1200px) {

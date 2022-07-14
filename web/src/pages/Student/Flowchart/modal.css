@@ -172,6 +172,10 @@
   height: 2px;
 }
 
+#subject-modal-background #subject-modal {
+  width: 80%;
+}
+
 #subject-modal-background #subject-comments {
   display: flex;
   flex-direction: column;
