@@ -1,6 +1,11 @@
 import {useState, useEffect, useRef} from 'react';
 import {SteppedLineTo} from 'react-lineto';
-import {MdLogout, MdShare} from 'react-icons/md';
+import {
+  MdLogout,
+  MdOutlinePublicOff,
+  MdShare,
+  MdOutlinePublic,
+} from 'react-icons/md';
 import {
   BiArrowBack,
   BiBookContent,
@@ -201,7 +206,7 @@ export default function Flowchart() {
 
       if (response.status === 200) {
         setPrivacySettings(response.data);
-        setModalLoading();
+        setModalLoading(false);
       }
     } catch (error) {
       alert('Ocorreu um erro, tente novamente mais tarde!');
@@ -469,10 +474,7 @@ export default function Flowchart() {
   }
 
   return (
-    <div
-      id={'page-container' + (loading ? '-loading' : '')}
-      className="flowchart-page-container"
-    >
+    <div id={'page-container' + (loading ? '-loading' : '')}>
       <div id="loading-modal-container">
         <Windmill color="white" size={40} />
       </div>
@@ -555,7 +557,7 @@ export default function Flowchart() {
                 <div id="subject-program">
                   <>
                     <div>
-                      <BiMenu color="#7D83FF" size={15} />
+                      <BiMenu color="#7D83FF" size={22} />
                       <p>Ementa</p>
                     </div>
                     <p>{selectedSubject.summary}</p>
@@ -563,7 +565,7 @@ export default function Flowchart() {
                   <hr />
                   <>
                     <div>
-                      <GiConvergenceTarget color="#7D83FF" size={15} />
+                      <GiConvergenceTarget color="#7D83FF" size={22} />
                       <p>Objetivos</p>
                     </div>
                     <p>{selectedSubject.objective}</p>
@@ -571,7 +573,7 @@ export default function Flowchart() {
                   <hr />
                   <>
                     <div>
-                      <BiCube color="#7D83FF" size={15} />
+                      <BiCube color="#7D83FF" size={22} />
                       <p>Metodologia</p>
                     </div>
                     <p>{selectedSubject.methodology}</p>
@@ -643,54 +645,68 @@ export default function Flowchart() {
         >
           <div id="privacy-modal" onClick={(e) => e.stopPropagation()}>
             {modalLoading ? (
-              <Dots color="#7D83FF" size={40} />
+              <div id="loading-container">
+                <Dots color="#7D83FF" size={32} />
+              </div>
             ) : (
-              <form onSubmit={(e) => e.preventDefault()}>
-                <label htmlFor="is_public">Fluxograma público</label>
-                <select
-                  name="is_public"
-                  onChange={(e) => {
-                    setPrivacySettings({
-                      ...privacySettings,
-                      is_public: e.target.value === 'true',
-                    });
-                    setAreSettingsBeingUpdated(true);
-                  }}
-                  value={privacySettings.is_public}
-                >
-                  <option value={true}>Habilitado</option>
-                  <option value={false}>Desabilitado</option>
-                </select>
+              <>
+                <div>
+                  <p> </p>
+                  <IoMdClose
+                    color="#aaabcb"
+                    onClick={() => setShowPrivacyModal(!showPrivacyModal)}
+                    id="close-modal-btn"
+                  />
+                </div>
 
-                <label htmlFor="has_public_comments">
-                  Comentários públicos
-                </label>
-                <select
-                  name="has_public_comments"
-                  onChange={(e) => {
-                    setPrivacySettings({
-                      ...privacySettings,
-                      has_public_comments: e.target.value === 'true',
-                    });
-                    setAreSettingsBeingUpdated(true);
-                  }}
-                  value={privacySettings.has_public_comments}
-                >
-                  <option value={true}>Habilitado</option>
-                  <option value={false}>Desabilitado</option>
-                </select>
-                {privacySettings.is_public && (
-                  <button type="button" onClick={handleShareUrl}>
-                    Compartilhar Link
-                  </button>
-                )}
-              </form>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <label htmlFor="is_public">Privacidade do Fluxograma</label>
+                  <select
+                    name="is_public"
+                    onChange={(e) => {
+                      setPrivacySettings({
+                        ...privacySettings,
+                        is_public: e.target.value === 'true',
+                      });
+                      setAreSettingsBeingUpdated(true);
+                    }}
+                    value={privacySettings.is_public}
+                  >
+                    <option value={true}>Público</option>
+                    <option value={false}> Privado</option>
+                  </select>
+
+                  {privacySettings.is_public && (
+                    <>
+                      <div id="comments-privacy">
+                        <input
+                          type="checkbox"
+                          id=""
+                          name="has_public_comments"
+                          onChange={(e) => {
+                            setPrivacySettings({
+                              ...privacySettings,
+                              has_public_comments: e.target.checked,
+                            });
+                            setAreSettingsBeingUpdated(true);
+                          }}
+                          value={privacySettings.has_public_comments}
+                          checked={privacySettings.has_public_comments}
+                        />
+                        <p>Tornar anotações públicas</p>
+                      </div>
+                      <button type="button" onClick={handleShareUrl}>
+                        Compartilhar Link
+                      </button>
+                    </>
+                  )}
+                </form>
+              </>
             )}
           </div>
         </div>
       )}
       <div id="page-header">
-        <p></p>
         <button onClick={handleLogout} title="Sair">
           <MdLogout color="white" id="logout-icon" />
         </button>
@@ -749,8 +765,6 @@ export default function Flowchart() {
                         onPointerDown={handlePointerDown}
                         onPointerUp={handlePointerUp}
                         style={{
-                          color:
-                            subject.status === 'todo' ? '#0D1321' : '#FFFBFE',
                           backgroundColor:
                             subject.status === 'todo'
                               ? '#F4F5FF'
@@ -769,8 +783,24 @@ export default function Flowchart() {
                               : 3,
                         }}
                       >
-                        <p className="subject-code">{subject.code}</p>
-                        <p className="subject-name">{subject.name}</p>
+                        <p
+                          className="subject-code"
+                          style={{
+                            color:
+                              subject.status === 'todo' ? '#0D1321' : '#FFFBFE',
+                          }}
+                        >
+                          {subject.code}
+                        </p>
+                        <p
+                          className="subject-name"
+                          style={{
+                            color:
+                              subject.status === 'todo' ? '#0D1321' : '#FFFBFE',
+                          }}
+                        >
+                          {subject.name}
+                        </p>
                         <p className="subject-code hidden">.</p>
                       </div>
                     )}

@@ -61,7 +61,7 @@ function Login() {
     <div id="container">
       <div id="login-container">
         <form onSubmit={handleSubmit}>
-          <h2>Login</h2>
+          <h1>Login</h1>
           <input
             type="text"
             value={username}
@@ -75,7 +75,7 @@ function Login() {
             placeholder="Senha"
           />
           <Link to="/forgotPassword" id="forgot-password-btn">
-            Esqueceu a senha?
+            <span>Esqueceu a senha?</span>
           </Link>
           <button type="submit" disabled={!username || !password}>
             {loading ? <Bounce color="white" /> : 'Entrar'}

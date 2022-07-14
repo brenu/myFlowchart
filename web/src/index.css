@@ -8,6 +8,8 @@ input {
   outline: none;
 }
 
+/* Custom Scrollbar */
+
 ::-webkit-scrollbar {
   width: 0.5vw;
   height: 0.5vw;
@@ -30,17 +32,12 @@ input {
   border-radius: 100vw;
 }
 
-body {
+:root {
   --bg-primary: #fffbfe;
   --bg-secondary: #7d83ff;
   --subject-done: #7d83ff;
   --subject-doing: #ffbaba;
   --subject-todo: #f4f5ff;
-  --text-primary: #212c46;
-  --text-secondary: #7d83ff;
-  --text-tertiary: #fffbfe;
-  --text-light-purple: #b4b8ff;
-  --text-gray: #aaabcb;
 }
 
 body {
@@ -52,27 +49,11 @@ body {
   color: var(--text-primary);
 }
 
-#page-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  background: var(--bg-primary);
-
-  min-width: 100vw;
-  min-height: 100vh;
-  max-width: 100vw;
-  max-height: 100vh;
-}
-
 button {
   border: none;
   background: var(--bg-secondary);
 
   color: var(--text-tertiary);
-  font-size: 17pt;
-
-  font-weight: bold;
 
   padding: 25px;
   cursor: pointer;
@@ -104,7 +85,6 @@ form > * {
 form input {
   background: var(--subject-todo);
   padding: 20px;
-  font-size: 14pt;
   border: none;
   outline: none;
   font-family: 'Poppins', sans-serif;
@@ -112,7 +92,6 @@ form input {
 
 form input::placeholder {
   color: var(--text-light-purple);
-  font-size: 13pt;
 }
 
 form input:focus {
@@ -122,9 +101,7 @@ form input:focus {
 form textarea {
   background: var(--subject-todo);
   padding: 20px;
-  font-size: 12pt;
   height: 200px;
-
   border: none;
   outline: none;
   resize: none;
@@ -132,15 +109,66 @@ form textarea {
 
 form select {
   background: var(--subject-todo);
-  padding: 20px;
-  font-size: 12pt;
-
-  border: none;
+  padding: 10px;
+  border-color: var(--subject-todo);
+  border-right: 2px var(--subject-todo) solid;
   outline: none;
-  resize: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Font sizes */
+:root {
+  --xx-small-text: 8pt;
+  --x-small-text: 10pt;
+  --small-text: 12.5pt;
+  --regular-text: 15pt;
+  --large-text: 25pt;
+  --x-large-text: 40pt;
+  --xx-large-text: 40pt;
+
+  --text-primary: #212c46;
+  --text-secondary: #7d83ff;
+  --text-tertiary: #fffbfe;
+  --text-light-purple: #b4b8ff;
+  --text-gray: #aaabcb;
+}
+
+h1 {
+  font-size: var(--large-text);
+  color: var(--text-primary);
+}
+
+h2 {
+  /* font-size: 32pt; */
+}
+
+h3 {
+}
+
+p {
+  font-size: var(--regular-text);
+  color: var(--text-primary);
+}
+
+form button,
+form span,
+form select,
+form textarea,
+form label {
+  font-size: var(--small-text);
+}
+
+button,
+form input::placeholder,
+form label,
+form input {
+  font-size: var(--regular-text);
+}
+
+button {
+  font-weight: bold !important;
 }
 
 form label {
-  color: var(--text-primary);
-  font-size: 15pt;
+  font-weight: bold;
 }

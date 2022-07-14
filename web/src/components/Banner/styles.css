@@ -17,7 +17,7 @@
 #banner-container span {
   font-weight: normal;
   font-family: 'Londrina Solid', cursive;
-  font-size: 50pt;
+  font-size: 52pt !important;
 }
 
 #banner-container img {

@@ -45,7 +45,7 @@ export default function ForgotPassword() {
         {step === 1 ? (
           <form>
             <div className="header">
-              <h2>Esqueceu a senha?</h2>
+              <h1>Esqueceu a senha?</h1>
               <p>
                 Não tem problema, te enviaremos as instruções para recuperação.
               </p>
@@ -70,7 +70,7 @@ export default function ForgotPassword() {
         ) : (
           <>
             <div className="header">
-              <h2>Confira seu email</h2>
+              <h1>Confira seu email</h1>
               <p>
                 Se há algum cadastro desse usuário,
                 <br />

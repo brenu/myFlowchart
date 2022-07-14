@@ -22,8 +22,9 @@
 .flowchart-selection-page-container #flowcharts-container button {
   background: none;
   color: #7d83ff;
-  font-size: 20pt;
   background: #7d83ff15;
+  font-size: var(--regular-text);
+  font-weight: bold;
 }
 
 .flowchart-selection-page-container #flowcharts-container button:hover {

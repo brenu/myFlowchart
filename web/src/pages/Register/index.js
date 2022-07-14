@@ -173,7 +173,7 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           {step === 1 && (
             <>
-              <h2>Cadastro</h2>
+              <h1>Cadastro</h1>
               <div className="form-field-container">
                 <input
                   type="text"
@@ -185,7 +185,7 @@ export default function Register() {
                 {usernameError && (
                   <div>
                     <VscError color="red" />
-                    <p>{usernameError}</p>
+                    <p id="error-msg">{usernameError}</p>
                   </div>
                 )}
               </div>
@@ -200,7 +200,7 @@ export default function Register() {
                 {passwordError && (
                   <div>
                     <VscError color="red" />
-                    <p>{passwordError}</p>
+                    <p id="error-msg">{passwordError}</p>
                   </div>
                 )}
               </div>
@@ -214,7 +214,7 @@ export default function Register() {
                 {emailError && (
                   <div>
                     <VscError color="red" />
-                    <p>{emailError}</p>
+                    <p id="error-msg">{emailError}</p>
                   </div>
                 )}
               </div>

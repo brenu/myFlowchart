@@ -1,12 +1,12 @@
-#error-container{
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    margin-top: 25px;
+#error-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 25px;
 }
 
-#error-msg{
-    margin-top: 5px;
-    color: red !important;
-    font-weight: bold;
+#error-msg {
+  margin-top: 5px;
+  color: red !important;
+  font-size: var(--small-text) !important;
 }
