@@ -309,7 +309,13 @@ function Flowchart() {
     }
   }
 
-  function handleSubjectClicks(e, subject, semester, subjectIndex) {
+  function handleSubjectClicks(
+    e,
+    subject,
+    semester,
+    subjectIndex,
+    isArchived = false
+  ) {
     if (e.detail === 1) {
       setSubjectTimeout(
         setTimeout(() => {
@@ -320,7 +326,9 @@ function Flowchart() {
       );
     } else if (e.detail === 2) {
       clearTimeout(subjectTimeout);
-      updateSubjectsState(semester, subjectIndex);
+      if (!isArchived) {
+        updateSubjectsState(semester, subjectIndex);
+      }
     }
   }
 
@@ -694,7 +702,8 @@ function Flowchart() {
                             e,
                             subject,
                             semester,
-                            subjectIndex
+                            subjectIndex,
+                            true
                           )
                         }
                         style={{

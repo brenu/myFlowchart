@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Londrina+Solid:wght@100;300;400;900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 *,
 button,
@@ -40,6 +39,7 @@ body {
   --text-primary: #212c46;
   --text-secondary: #7d83ff;
   --text-tertiary: #fffbfe;
+  --text-light-purple: #b4b8ff;
   --text-gray: #aaabcb;
 }
 
@@ -48,13 +48,8 @@ body {
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fffbfe;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
 }
 
 #page-container {
@@ -70,22 +65,14 @@ code {
   max-height: 100vh;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-button {
-  font-family: 'Londrina Solid', cursive;
-}
-
 button {
   border: none;
   background: var(--bg-secondary);
 
   color: var(--text-tertiary);
-  font-size: 16pt;
-  font-weight: normal;
+  font-size: 17pt;
+
+  font-weight: bold;
 
   padding: 25px;
   cursor: pointer;
@@ -115,24 +102,25 @@ form > * {
 }
 
 form input {
-  background: #f4f5ff;
+  background: var(--subject-todo);
   padding: 20px;
   font-size: 14pt;
-
   border: none;
   outline: none;
+  font-family: 'Poppins', sans-serif;
 }
 
 form input::placeholder {
-  color: #868ea4;
+  color: var(--text-light-purple);
+  font-size: 13pt;
 }
 
 form input:focus {
-  outline: 2px solid #7d83ff;
+  outline: 2px solid var(--bg-secondary);
 }
 
 form textarea {
-  background: #f4f5ff;
+  background: var(--subject-todo);
   padding: 20px;
   font-size: 12pt;
   height: 200px;
@@ -143,7 +131,7 @@ form textarea {
 }
 
 form select {
-  background: #f4f5ff;
+  background: var(--subject-todo);
   padding: 20px;
   font-size: 12pt;
 
@@ -153,7 +141,6 @@ form select {
 }
 
 form label {
-  font-family: 'Londrina Solid', cursive;
-  color: #444;
-  font-size: 17pt;
+  color: var(--text-primary);
+  font-size: 15pt;
 }

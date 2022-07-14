@@ -1,5 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import { schema, rules } from '@ioc:Adonis/Core/Validator';
+import { schema, rules} from '@ioc:Adonis/Core/Validator';
 
 export default class FormController {
   public async store({request, response} : HttpContextContract){
@@ -7,6 +7,8 @@ export default class FormController {
       const newUserSchema = schema.create({
         username: schema.string({}, [
           rules.required(),
+          rules.maxLength(30),
+          rules.usernameValidation(),
           rules.unique({ table: 'users', column: 'username' })
         ]),
         recovery_email: schema.string({}, [
@@ -24,7 +26,10 @@ export default class FormController {
         messages: {
           'username.required': 'username~O nome de usuário é obrigatório',
           'username.unique': 'username~Nome de usuário não disponível',
+          'username.maxLength': 'username~O nome de usuário deve possuir, no máximo, 30 caracteres',
+          'username.usernameValidation':"username~O nome de usuário deve conter apenas letras, dígitos ou underline",
           'password.required': 'password~A senha é obrigatória',
+
           'password.minLength': 'password~A senha deve possuir ao menos {{ options.minLength }} caracteres',
           'recovery_email.email': 'email~E-Mail inválido',
           'recovery_email.required':'email~O e-mail é obrigatório'

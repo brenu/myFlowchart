@@ -1,0 +1,32 @@
+#banner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #7d83ff;
+}
+
+#banner-container h1 {
+  color: var(--text-tertiary);
+  font-size: 20pt !important;
+  font-weight: 300;
+  text-align: center;
+  max-width: 400px;
+}
+
+#banner-container span {
+  font-weight: normal;
+  font-family: 'Londrina Solid', cursive;
+  font-size: 50pt;
+}
+
+#banner-container img {
+  max-width: 80%;
+}
+
+@media (min-width: 1200px) {
+  #banner-container {
+    flex: 0.5;
+    display: flex;
+  }
+}

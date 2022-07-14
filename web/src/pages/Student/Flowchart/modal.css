@@ -216,3 +216,35 @@
 #comment-form button {
   border-radius: 50%;
 }
+
+@media (max-width: 1200px) {
+  #subject-modal-background > div {
+    width: 70%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    padding: 30px;
+
+    background: var(--bg-primary);
+    border-radius: 3%;
+  }
+}
+
+@media (max-width: 900px) {
+  #subject-modal-background > div {
+    width: 90%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    padding: 30px;
+
+    background: var(--bg-primary);
+    border-radius: 3%;
+  }
+}

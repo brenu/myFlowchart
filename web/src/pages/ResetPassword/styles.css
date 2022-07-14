@@ -45,7 +45,6 @@
 @media (min-width: 1200px) {
   #forgot-container {
     flex: 0.5;
-
     width: 100%;
   }
 }
