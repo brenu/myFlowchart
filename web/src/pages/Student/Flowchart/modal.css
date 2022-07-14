@@ -176,8 +176,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
-  overflow: auto;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
   max-height: 60%;
 }
 
@@ -188,6 +188,8 @@
   margin-bottom: 2vh;
   margin-right: 1vw;
   overflow-wrap: break-word;
+  word-break: break-all;
+  hyphens: auto;
 }
 
 .subject-comment p:first-of-type {

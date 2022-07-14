@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {SteppedLineTo} from 'react-lineto';
 import {MdLogout, MdShare} from 'react-icons/md';
 import {
@@ -27,7 +27,37 @@ import './styles.css';
 import './modal.css';
 import {FaPaperPlane} from 'react-icons/fa';
 
-function Flowchart() {
+const colors = [
+  '#F55',
+  '#4bb',
+  '#4bb543',
+  '#800080',
+  '#ff7700',
+  '#FFF',
+  '#FF6',
+  '#777',
+];
+
+let romanNumbers = {
+  1: 'I',
+  2: 'II',
+  3: 'III',
+  4: 'IV',
+  5: 'V',
+  6: 'VI',
+  7: 'VII',
+  8: 'VIII',
+  9: 'IX',
+  10: 'X',
+};
+
+const statuses = {
+  todo: 'A fazer',
+  doing: 'Fazendo',
+  done: 'Completa',
+};
+
+export default function Flowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -49,35 +79,7 @@ function Flowchart() {
   const [privacySettings, setPrivacySettings] = useState({});
   const [areSettingsBeingUpdated, setAreSettingsBeingUpdated] = useState(false);
 
-  const colors = [
-    '#F55',
-    '#4bb',
-    '#4bb543',
-    '#800080',
-    '#ff7700',
-    '#FFF',
-    '#FF6',
-    '#777',
-  ];
-
-  let romanNumbers = {
-    1: 'I',
-    2: 'II',
-    3: 'III',
-    4: 'IV',
-    5: 'V',
-    6: 'VI',
-    7: 'VII',
-    8: 'VIII',
-    9: 'IX',
-    10: 'X',
-  };
-
-  const statuses = {
-    todo: 'A fazer',
-    doing: 'Fazendo',
-    done: 'Completa',
-  };
+  const commentsBeginningRef = useRef(null);
 
   let statelessPrerequisites = [];
 
@@ -133,8 +135,19 @@ function Flowchart() {
   }, [areSettingsBeingUpdated]);
 
   useEffect(() => {
-    if (!showModal) setModalStep(1);
+    if (!showModal) {
+      setModalStep(1);
+      setCommentMessage('');
+    }
   }, [showModal]);
+
+  const scrollToTop = () => {
+    commentsBeginningRef.current?.scrollIntoView({behavior: 'smooth'});
+  };
+
+  useEffect(() => {
+    scrollToTop();
+  }, [selectedSubject]);
 
   function openPrivacyModal() {
     setShowPrivacyModal(true);
@@ -234,8 +247,6 @@ function Flowchart() {
   }
 
   function getPreviousSubjects(semester, subjectIndex) {
-    let done = true;
-
     const subject = flowchart[semester][subjectIndex];
     const localPrerequisitesPath = [];
 
@@ -263,7 +274,6 @@ function Flowchart() {
       if (semesterKeys.includes(i)) {
         for (let j = 0; j < flowchart[i].length; j++) {
           if (previousSubjects.includes(flowchart[i][j].code)) {
-            done = false;
             getPreviousSubjects(i, j);
           }
         }
@@ -338,6 +348,8 @@ function Flowchart() {
   async function handleComment(e) {
     e.preventDefault();
 
+    if (!commentMessage) return;
+
     try {
       const response = await api.post(
         '/comments',
@@ -355,14 +367,42 @@ function Flowchart() {
       );
 
       if (response.status === 201) {
-        setSelectedSubject({
+        let updatedFlowchart = [];
+        let updatedSubject = {
           ...selectedSubject,
           comments: [
             ...selectedSubject.comments,
-            {content: commentMessage, created_at: new Date().toISOString()},
+            {
+              content: commentMessage,
+              created_at: new Date().toISOString(),
+            },
           ],
+        };
+        updatedSubject.comments.sort(function (a, b) {
+          return new Date(a.created_at) - new Date(b.created_at);
         });
 
+        Object.keys(flowchart).map((semester) => {
+          let updatedSemester = [];
+
+          if (semester === selectedSubject.semester) {
+            flowchart[semester].map((subject) => {
+              if (subject.id === selectedSubject.id) {
+                updatedSemester.push(updatedSubject);
+              } else {
+                updatedSemester.push(subject);
+              }
+              return null;
+            });
+            updatedFlowchart[semester] = updatedSemester;
+          } else {
+            updatedFlowchart[semester] = flowchart[semester];
+          }
+          return null;
+        });
+
+        setSelectedSubject(updatedSubject);
+        setFlowchart(updatedFlowchart);
         setCommentMessage('');
       }
     } catch (error) {
@@ -378,6 +418,7 @@ function Flowchart() {
       <div id="loading-modal-container">
         <Windmill color="white" size={40} />
       </div>
+
       {/* Modal da disciplina */}
       {showModal && (
         <div
@@ -502,29 +543,35 @@ function Flowchart() {
             {modalStep === 3 && (
               <>
                 <div id="subject-comments">
-                  {selectedSubject.comments.map((comment, index) => {
-                    const date = new Date(comment.created_at);
+                  <div ref={commentsBeginningRef} />
+                  {selectedSubject.comments
+                    .slice(0)
+                    .reverse()
+                    .map((comment, index) => {
+                      const date = new Date(comment.created_at);
 
-                    const day = date.getDate();
-                    const month = date.toLocaleString('pt-BR', {month: 'long'});
-                    const time = date.toLocaleTimeString('pt-BR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    });
+                      const day = date.getDate();
+                      const month = date.toLocaleString('pt-BR', {
+                        month: 'long',
+                      });
+                      const year = date.getFullYear();
+                      const time = date.toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
 
-                    return (
-                      <div className="subject-comment" key={index}>
-                        <p>
-                          {day} de {month}, às {time}
-                        </p>
-                        <p>{comment.content}</p>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div className="subject-comment" key={index}>
+                          <p>
+                            {day} de {month} de {year}, às {time}
+                          </p>
+                          <p>{comment.content}</p>
+                        </div>
+                      );
+                    })}
                 </div>
                 <form id="comment-form" onSubmit={handleComment}>
                   <input
-                    autofocus="autofocus"
                     type="text"
                     value={commentMessage}
                     onChange={(e) => setCommentMessage(e.target.value)}
@@ -732,5 +779,3 @@ function Flowchart() {
     </div>
   );
 }
-
-export default Flowchart;
