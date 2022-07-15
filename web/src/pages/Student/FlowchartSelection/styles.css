@@ -8,6 +8,10 @@
   background-color: var(--bg-secondary);
 }
 
+.flowchart-selection-page-container {
+  display: flex;
+}
+
 .flowchart-selection-page-container h1 {
   text-align: center;
   color: white;
@@ -73,6 +77,9 @@
   font-size: var(--regular-text);
   border: 2px dashed transparent;
   padding: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .flowchart-selection-page-container #flowcharts-container button:hover {

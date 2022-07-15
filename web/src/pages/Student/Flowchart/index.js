@@ -60,8 +60,9 @@ export default function Flowchart() {
 
   const [blockTimeout, setBlocktimeout] = useState(null);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] =
-    useState(false);
+  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] = useState(
+    false
+  );
 
   const colors = [
     '#FF5555',
@@ -474,7 +475,10 @@ export default function Flowchart() {
   }
 
   return (
-    <div id={'page-container' + (loading ? '-loading' : '')}>
+    <div
+      id={'page-container' + (loading ? '-loading' : '')}
+      className="student-flowchart-page-container"
+    >
       <div id="loading-modal-container">
         <Dots color="white" size={40} />
       </div>
@@ -508,9 +512,7 @@ export default function Flowchart() {
             <p>{selectedSubject.name}</p>
             {modalStep > 1 && (
               <p>
-                {modalStep === 2
-                  ? 'Programa da disciplina'
-                  : `Suas anotações / Anotações de ${username}`}
+                {modalStep === 2 ? 'Programa da disciplina' : `Suas anotações`}
               </p>
             )}
 
@@ -552,7 +554,7 @@ export default function Flowchart() {
                 </div>
                 <div onClick={() => setModalStep(3)} className="btn">
                   <BiNote size={20} color="#7d83ff" />
-                  <p>Suas anotações / Anotações de {username}</p>
+                  <p>Suas anotações</p>
                 </div>
               </>
             )}
