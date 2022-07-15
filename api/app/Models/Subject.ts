@@ -20,7 +20,7 @@ export default class Subject extends BaseModel {
   public code: string
 
   @column()
-  public professor: string
+  public professor?: string
 
   @column()
   public theoretical_load: number
