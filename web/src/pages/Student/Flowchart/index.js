@@ -25,7 +25,7 @@ import './styles.css';
 import api from '../../../services/api';
 import {deleteCredentials} from '../../../auth';
 
-import {Windmill, Dots} from 'react-activity';
+import {Dots} from 'react-activity';
 import 'react-activity/dist/library.css';
 
 import './styles.css';
@@ -476,7 +476,7 @@ export default function Flowchart() {
   return (
     <div id={'page-container' + (loading ? '-loading' : '')}>
       <div id="loading-modal-container">
-        <Windmill color="white" size={40} />
+        <Dots color="white" size={40} />
       </div>
 
       {/* Modal da disciplina */}
@@ -518,32 +518,37 @@ export default function Flowchart() {
             {modalStep === 1 && (
               <>
                 <div id="subject-info">
-                  <div>
-                    <p>Código</p>
-                    <p>Status</p>
-                    <p>Professor</p>
-                    <p>Carga Horária</p>
-                  </div>
-                  <div>
-                    <p>{selectedSubject.code}</p>
-                    <div>
-                      <div /> <p>{statuses[selectedSubject.status]}</p>
-                    </div>
-                    <p>
-                      {selectedSubject.professor
-                        ? selectedSubject.professor
-                        : 'Não informado'}
-                    </p>
-                    <p>
-                      Teórica: {selectedSubject.theoretical_load}h / Prática:{' '}
-                      {selectedSubject.practical_load}h
-                    </p>
-                  </div>
+                  <table>
+                    <tr>
+                      <td>Código</td>
+                      <td>{selectedSubject.code}</td>
+                    </tr>
+                    <tr>
+                      <td>Status</td>
+                      <td>{statuses[selectedSubject.status]}</td>
+                    </tr>
+                    <tr>
+                      <td>Professor</td>
+                      <td>
+                        {' '}
+                        {selectedSubject.professor
+                          ? selectedSubject.professor
+                          : 'Não informado'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Carga horária</td>
+                      <td>
+                        Teórica: {selectedSubject.theoretical_load}h / Prática:{' '}
+                        {selectedSubject.practical_load}h
+                      </td>
+                    </tr>
+                  </table>
                 </div>
                 <hr />
                 <div onClick={() => setModalStep(2)} className="btn">
                   <BiBookContent size={20} color="#7d83ff" />
-                  <p>Programa da disciplina</p>
+                  <p id="subject-btn">Programa da disciplina</p>
                 </div>
                 <div onClick={() => setModalStep(3)} className="btn">
                   <BiNote size={20} color="#7d83ff" />
@@ -710,7 +715,12 @@ export default function Flowchart() {
         <button onClick={handleLogout} title="Sair">
           <MdLogout color="white" id="logout-icon" />
         </button>
-        <h1 className="page-title">Fluxograma - {flowchartName}</h1>
+        <h1
+          className="page-title"
+          onClick={() => navigate('/student/flowchart')}
+        >
+          Fluxograma - {flowchartName}
+        </h1>
         <button
           id="share-button"
           title="Compartilhar link do fluxograma"

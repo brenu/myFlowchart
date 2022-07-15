@@ -1,6 +1,4 @@
 import {useState, useEffect} from 'react';
-import {SteppedLineTo} from 'react-lineto';
-import {FaUserCircle} from 'react-icons/fa';
 
 import './styles.css';
 import {useNavigate, useParams} from 'react-router-dom';
@@ -41,13 +39,16 @@ function FlowchartSelection() {
   }
 
   return (
-    <div id="page-container" class="flowchart-selection-page-container">
-      <h1>Selecione um curso</h1>
+    <div class="flowchart-selection-page-container">
+      <h1>Qual curso deseja visualizar?</h1>
+
       <div id="flowcharts-container">
         {flowcharts.map((flowchart) => (
-          <button onClick={() => handleNavigation(flowchart.id)}>
-            {flowchart.name}
-          </button>
+          <>
+            <button onClick={() => handleNavigation(flowchart.id)}>
+              {flowchart.name}
+            </button>
+          </>
         ))}
       </div>
     </div>

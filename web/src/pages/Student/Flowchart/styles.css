@@ -71,6 +71,8 @@
   margin-left: 10px;
 }
 
+
+
 #page-header {
   width: 100%;
   height: 80px;
@@ -87,12 +89,11 @@
 }
 
 #page-header button {
-  flex: 1;
-  font-size: 15pt;
+  width: max-content;
+  padding: 10px;
   font-weight: normal;
   justify-content: center !important;
   align-items: center !important;
-  padding: 0;
 }
 
 #logout-icon {
@@ -103,11 +104,27 @@
 }
 
 .page-title {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
   font-size: var(--regular-text);
   font-weight: bold !important;
 }
 
+.page-title:hover {
+  cursor: pointer;
+}
+
 #semesters-container {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
   position: relative;
   display: flex;
   justify-content: flex-start;
@@ -151,6 +168,11 @@
 }
 
 .subject-container * {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
   user-select: none;
 }
 
