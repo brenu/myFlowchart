@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate, useSearchParams} from 'react-router-dom';
 import './styles.css';
-import PageBanner from '../../assets/login_page_banner.png';
 import {FaTimes} from 'react-icons/fa';
 import {VscError} from 'react-icons/vsc';
 
@@ -17,6 +16,8 @@ export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [recovery_email, setRecovery_email] = useState('');
+  let [searchParams] = useSearchParams();
+  const flowchartId = searchParams.get('flowchart');
 
   const [role, setRole] = useState('student');
   const [flowchartName, setFlowchartName] = useState('');
@@ -41,10 +42,21 @@ export default function Register() {
 
   useEffect(() => {
     async function handleInit() {
-      const response = await api.get('/flowcharts');
+      try {
+        const response = await api.get('/flowcharts');
 
-      if (response.status === 200) {
-        setFlowcharts(response.data);
+        if (response.status === 200) {
+          setFlowcharts(response.data);
+
+          for (let flowchart of response.data) {
+            if (flowchart.id === parseInt(flowchartId)) {
+              setSelectedFlowcharts([flowchart]);
+              break;
+            }
+          }
+        }
+      } catch (error) {
+        navigate('/');
       }
     }
 

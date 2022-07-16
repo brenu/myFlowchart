@@ -54,7 +54,7 @@ export default class Subject extends BaseModel {
     const students = await StudentFlowchart.query().where('flowchart_id', subject.flowchart_id)
 
     const studentSubjects = students.map((student) => ({
-      student_id: student.id,
+      student_id: student.student_id,
       subject_id: subject.id,
     }))
 
