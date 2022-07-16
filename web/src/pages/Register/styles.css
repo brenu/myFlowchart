@@ -63,7 +63,7 @@
 }
 
 .form-field-container div p {
-  color: red !important;
+  color: var(--text-red) !important;
   margin-left: 10px;
 }
 
@@ -105,8 +105,8 @@
 }
 
 #create-accout-link {
-  color: red;
-  background-color: red;
+  color: var(--text-red);
+  background-color: var(--text-red);
 }
 
 @media (min-width: 1200px) {

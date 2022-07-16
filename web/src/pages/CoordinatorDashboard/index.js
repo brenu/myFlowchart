@@ -19,6 +19,9 @@ import {BiArrowBack, BiRightArrowAlt} from 'react-icons/bi';
 import './styles.css';
 import './modal.css';
 
+import {ReactComponent as Updated} from '../../assets/updated.svg';
+import {ReactComponent as Created} from '../../assets/created.svg';
+
 function CoordinatorDashboard() {
   const navigate = useNavigate();
 
@@ -82,7 +85,7 @@ function CoordinatorDashboard() {
       });
 
       if (response.status === 201) {
-        setErrorMessage('tudocertin');
+        setModalStep(4);
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -109,7 +112,7 @@ function CoordinatorDashboard() {
       );
 
       if (response.status === 200) {
-        setErrorMessage('tudocertin');
+        setModalStep(4);
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -174,7 +177,7 @@ function CoordinatorDashboard() {
 
   useEffect(() => {
     setErrorMessage('');
-  }, [modalStep, showModal]);
+  }, [modalStep, showModal, subjectData]);
 
   const [prerequisites, setPrerequisites] = useState([]);
 
@@ -215,17 +218,31 @@ function CoordinatorDashboard() {
               <BiArrowBack
                 color="#aaabcb"
                 onClick={() => setModalStep(1)}
-                id="close-modal-btn"
+                class={
+                  'close-modal-btn ' +
+                  (modalStep === 1 || modalStep === 4 ? 'invisible' : '')
+                }
               />
 
               <div>
-                <p>Nova disciplina</p>
+                <p>
+                  {isCreateOperation
+                    ? 'Nova disciplina'
+                    : 'Atualizar disciplina'}
+                </p>
+                <div
+                  class={
+                    'progress-element ' + (modalStep === 4 ? 'invisible' : '')
+                  }
+                >
+                  <div class={'filled f' + modalStep}></div>
+                </div>
               </div>
 
               <IoMdClose
                 color="#aaabcb"
                 onClick={() => setShowModal(!showModal)}
-                id="close-modal-btn"
+                class="close-modal-btn"
               />
             </div>
 
@@ -285,7 +302,9 @@ function CoordinatorDashboard() {
                       />
                     </div>
 
-                    <p id="field-title">Carga horária</p>
+                    <div>
+                      <p id="field-title">Carga horária</p>
+                    </div>
 
                     <div>
                       <p id="field-title">Teórica</p>
@@ -500,15 +519,25 @@ function CoordinatorDashboard() {
                         </>
                       )}
                     </button>
-                    <p id={errorMessage === 'tudocertin' ? 'success' : 'fail'}>
-                      {errorMessage.length
-                        ? errorMessage !== 'tudocertin'
-                          ? errorMessage
-                          : isCreateOperation
-                          ? 'Disciplina adicionada com sucesso.'
-                          : 'Suas alterações foram salvas.'
-                        : ''}
+                    <p id="fail">{errorMessage}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Página 4: Success*/}
+              {modalStep === 4 && (
+                <>
+                  <div id="subject-form-success">
+                    <Created width="200" height="200" />
+                    <p>
+                      {isCreateOperation
+                        ? 'Disciplina adicionada\ncom sucesso.'
+                        : 'Suas alterações foram salvas.'}
                     </p>
+
+                    <button onClick={() => setShowModal(false)} id="next-btn">
+                      <p>Sair</p>
+                    </button>
                   </div>
                 </>
               )}

@@ -184,7 +184,7 @@ export default function Register() {
 
                 {usernameError && (
                   <div>
-                    <VscError color="red" />
+                    <VscError color="var(--text-red)" />
                     <p id="error-msg">{usernameError}</p>
                   </div>
                 )}
@@ -199,7 +199,7 @@ export default function Register() {
                 />
                 {passwordError && (
                   <div>
-                    <VscError color="red" />
+                    <VscError color="var(--text-red)" />
                     <p id="error-msg">{passwordError}</p>
                   </div>
                 )}
@@ -213,7 +213,7 @@ export default function Register() {
                 />
                 {emailError && (
                   <div>
-                    <VscError color="red" />
+                    <VscError color="var(--text-red)" />
                     <p id="error-msg">{emailError}</p>
                   </div>
                 )}

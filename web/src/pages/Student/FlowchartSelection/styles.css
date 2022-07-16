@@ -43,7 +43,6 @@
 
 .flowchart-selection-page-container #flowcharts-container {
   margin-top: 10px;
-  /* background-color: red; */
   overflow-y: auto;
 
   height: 50vh;

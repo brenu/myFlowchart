@@ -7,6 +7,6 @@
 
 #error-msg {
   margin-top: 5px;
-  color: red !important;
+  color: var(--text-red) !important;
   font-size: var(--small-text) !important;
 }
