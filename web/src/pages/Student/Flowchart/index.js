@@ -60,9 +60,8 @@ export default function Flowchart() {
 
   const [blockTimeout, setBlocktimeout] = useState(null);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] = useState(
-    false
-  );
+  const [wasBlockAlreadyActivated, setWasBlockAlreadyActivated] =
+    useState(false);
 
   const colors = [
     '#FF5555',
@@ -94,6 +93,11 @@ export default function Flowchart() {
     8: 'VIII',
     9: 'IX',
     10: 'X',
+    11: 'XI',
+    12: 'XII',
+    13: 'XIII',
+    14: 'XIV',
+    15: 'XV',
   };
 
   const statuses = {

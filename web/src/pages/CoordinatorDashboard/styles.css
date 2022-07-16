@@ -125,28 +125,43 @@
 #admin-dashboard-content .semester-container {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
 
-  /* margin-bottom: 30px; */
+  align-items: flex-start;
+
+  margin-top: 20px;
   width: unset;
 }
 
 #admin-dashboard-content .semester-container h2 {
-  margin-top: 50px;
   text-align: left;
   color: var(--text-gray);
-
-  margin-bottom: 30px;
   margin-left: 20px;
 }
 
 #admin-dashboard-content .semester-container .subjects-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
   width: 100%;
-  max-width: 100%;
+  /**
+   * User input values.
+   */
+  --grid-layout-gap: 40px;
+  --grid-column-count: 10;
+  --grid-item--min-width: 130px;
+
+  /**
+    * Calculated values.
+    */
+  --gap-count: calc(var(--grid-column-count) - 1);
+  --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
+  --grid-item--max-width: calc(
+    (100% - var(--total-gap-width)) / var(--grid-column-count)
+  );
+
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(var(--grid-item--min-width), 1fr)
+  );
+  grid-gap: var(--grid-layout-gap);
 }
 
 #admin-dashboard-content
@@ -154,9 +169,12 @@
   .subjects-container
   .subject-container {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+
+  height: 80px;
+
   align-items: center;
-  background: #f4f5ff;
+  background: var(--subject-todo);
 
   text-align: center;
   border-radius: 8px;
@@ -166,9 +184,15 @@
   .semester-container
   .subjects-container
   .subject-container
-  span:first-of-type {
+  span:first-of-type,
+#admin-dashboard-content
+  .semester-container
+  .subjects-container
+  .subject-container
+  :nth-child(3) {
   font-weight: 300;
-  color: #444;
+  color: var(--text-primary);
+  font-size: var(--xx-small-text);
 }
 
 #admin-dashboard-content
@@ -176,7 +200,11 @@
   .subjects-container
   .subject-container
   :nth-child(2) {
-  font-weight: 800;
+  display: flex;
+  flex: 1;
+  font-weight: 700;
+  font-size: var(--x-small-text);
+  overflow-y: hidden;
 }
 
 @media (max-width: 800px) {

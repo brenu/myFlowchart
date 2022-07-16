@@ -22,6 +22,31 @@ import './modal.css';
 import {ReactComponent as Updated} from '../../assets/updated.svg';
 import {ReactComponent as Created} from '../../assets/created.svg';
 
+function min(a, b) {
+  if (a < b) return a;
+  return b;
+}
+
+function removeInvalidCharacters(str) {
+  let cleanStr = '';
+
+  let validChars = 'áàâãéêèíîìóôõúùç';
+
+  for (let i = 0; i < str.length; ++i) {
+    if (
+      (str[i] >= 'a' && str[i] <= 'z') ||
+      (str[i] >= 'A' && str[i] <= 'Z') ||
+      validChars.includes(str[i]) ||
+      validChars.toUpperCase().includes(str[i]) ||
+      str[i] === ' '
+    ) {
+      cleanStr += str[i];
+    }
+  }
+
+  return cleanStr;
+}
+
 function CoordinatorDashboard() {
   const navigate = useNavigate();
 
@@ -262,7 +287,7 @@ function CoordinatorDashboard() {
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            name: e.target.value,
+                            name: removeInvalidCharacters(e.target.value),
                           }));
                         }}
                       />
@@ -272,13 +297,13 @@ function CoordinatorDashboard() {
                       <p id="field-title">Código</p>
                       <input
                         type="text"
+                        maxLength={10}
                         placeholder="e.g. 'CET-098'"
-                        autoCapitalize="words"
                         value={subjectData.code}
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            code: e.target.value,
+                            code: e.target.value.toUpperCase(),
                           }));
                         }}
                       />
@@ -296,7 +321,7 @@ function CoordinatorDashboard() {
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            semester: e.target.value,
+                            semester: min(15, e.target.value),
                           }));
                         }}
                       />
@@ -317,7 +342,7 @@ function CoordinatorDashboard() {
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            theoretical_load: e.target.value,
+                            theoretical_load: min(e.target.value, 100),
                           }));
                         }}
                       />
@@ -335,7 +360,7 @@ function CoordinatorDashboard() {
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            practical_load: e.target.value,
+                            practical_load: min(e.target.value, 100),
                           }));
                         }}
                       />
@@ -351,7 +376,7 @@ function CoordinatorDashboard() {
                         onChange={(e) => {
                           setSubjectData((subjectData) => ({
                             ...subjectData,
-                            professor: e.target.value,
+                            professor: removeInvalidCharacters(e.target.value),
                           }));
                         }}
                       />
@@ -594,7 +619,7 @@ function CoordinatorDashboard() {
                     key={subjectIndex}
                   >
                     <span>{subject.code}</span>
-                    <span>{subject.name}</span>
+                    <span id="subject-code">{subject.name}</span>
                   </div>
                 ))}
               </div>
