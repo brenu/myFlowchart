@@ -73,16 +73,15 @@ export default class FlowchartsController {
                 `)
 
         subject.comments = []
+        subject.prerequisites = await prerequisites.rows.map(
+          (prerequisite: Subject) => prerequisite.code
+        )
 
         if (studentFlowchart.has_public_comments) {
           const comments = await Comment.query()
             .select(['content', 'created_at'])
             .where('subject_id', subject.id)
             .andWhere('owner_id', studentFlowchart.id)
-
-          subject.prerequisites = await prerequisites.rows.map(
-            (prerequisite: Subject) => prerequisite.code
-          )
 
           subject.comments = comments
         }

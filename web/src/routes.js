@@ -15,6 +15,7 @@ import FlowchartSelection from './pages/Student/FlowchartSelection';
 
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import PublicFlowchart from './pages/PublicFlowchart';
 
 const PrivateRoute = ({component: Component, role}) => {
   console.log(role);
@@ -33,6 +34,11 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />
         <Route path="/resetPassword/:token" element={<ResetPassword />} />
+
+        <Route
+          path="/flowchart/:studentId/:flowchartId"
+          element={<PublicFlowchart />}
+        />
 
         {/* Student Routes */}
         <Route

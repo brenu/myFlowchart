@@ -1,16 +1,8 @@
 import {useState, useEffect, useRef} from 'react';
 import {SteppedLineTo} from 'react-lineto';
 import {
-  MdLogout,
-  MdOutlinePublicOff,
-  MdShare,
-  MdOutlinePublic,
-} from 'react-icons/md';
-import {
   BiArrowBack,
   BiBookContent,
-  BiComment,
-  BiCommentAdd,
   BiMenu,
   BiNote,
   BiCube,
@@ -22,28 +14,24 @@ import {IoMdClose} from 'react-icons/io';
 
 import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css';
-import api from '../../../services/api';
-import {deleteCredentials} from '../../../auth';
+import api from '../../services/api';
 
 import {Dots} from 'react-activity';
 import 'react-activity/dist/library.css';
 
 import './styles.css';
 import './modal.css';
-import {FaPaperPlane} from 'react-icons/fa';
 
-export default function Flowchart() {
+export default function PublicFlowchart() {
   const [flowchart, setFlowchart] = useState([]);
   const [prerequisitesPath, setPrerequisitesPath] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState({});
   const [subjectTimeouts, setSubjectTimeouts] = useState(null);
-  const {id} = useParams();
+  const {studentId, flowchartId} = useParams();
   const navigate = useNavigate();
   const [hasArchivedSubjects, setHasArchivedSubjects] = useState(true);
-
-  const [studentId, setStudentId] = useState(0);
   const [flowchartName, setFlowchartName] = useState('');
   const [username, setUsername] = useState('');
   const [commentMessage, setCommentMessage] = useState('');
@@ -136,20 +124,28 @@ export default function Flowchart() {
     async function handleInit() {
       setLoading(true);
 
-      const response = await api.get(`/student/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
-        },
-      });
+      try {
+        const response = await api.get(
+          `/flowchart/${studentId}/${flowchartId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem(
+                'myFlowchart@token'
+              )}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        setFlowchart(response.data.subjects);
-        setStudentId(response.data.student_id);
-        setFlowchartName(response.data.flowchart_name);
-        setUsername(response.data.username);
+        if (response.status === 200) {
+          setFlowchart(response.data.subjects);
+          setFlowchartName(response.data.flowchart_name);
+          setUsername(response.data.username);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        navigate('/');
       }
-
-      setLoading(false);
     }
 
     handleInit();
@@ -176,12 +172,6 @@ export default function Flowchart() {
       }, 1000);
     }
   }, [loading]);
-
-  useEffect(() => {
-    if (areSettingsBeingUpdated) {
-      handlePrivacySettingsUpdate();
-    }
-  }, [areSettingsBeingUpdated]);
 
   useEffect(() => {
     if (!showModal) {
@@ -219,101 +209,10 @@ export default function Flowchart() {
     }
   }, [fullOpacitySubjects]);
 
-  function openPrivacyModal() {
-    setShowPrivacyModal(true);
-    setModalLoading(true);
-    getPrivacySettings();
-  }
-
-  async function getPrivacySettings() {
-    try {
-      const response = await api.get(`/student/privacy/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
-        },
-      });
-
-      if (response.status === 200) {
-        setPrivacySettings(response.data);
-        setModalLoading(false);
-      }
-    } catch (error) {
-      alert('Ocorreu um erro, tente novamente mais tarde!');
-      setShowPrivacyModal(false);
-    }
-  }
-
-  async function handlePrivacySettingsUpdate() {
-    if (!privacySettings.is_public) {
-      navigator.clipboard.writeText('');
-    }
-
-    try {
-      await api.put(`/student/privacy/${id}`, privacySettings, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
-        },
-      });
-
-      setAreSettingsBeingUpdated(false);
-    } catch (error) {
-      alert('Ocorreu um erro, tente novamente mais tarde!');
-    }
-  }
-
-  function handleShareUrl() {
-    navigator.clipboard
-      .writeText(`${window.origin}/flowchart/${studentId}/${id}`)
-      .then(
-        function () {
-          alert(
-            'A URL foi copiada para a área de transferência e pode ser compartilhada com seus alunos!'
-          );
-        },
-        function () {
-          alert('Ocorreu um erro, tente novamente mais tarde!');
-        }
-      );
-  }
-
-  function handleLogout() {
-    deleteCredentials();
-    navigate('/');
-  }
-
   function updatePrerequisitesPath(semesterIndex, subjectIndex) {
     statelessPrerequisites = [];
     getPreviousSubjects(semesterIndex, subjectIndex);
     getFutureSubjects(semesterIndex, subjectIndex);
-  }
-
-  async function updateSubjectsState(semester, subjectIndex) {
-    const newFlowchart = {...flowchart};
-    const subject = newFlowchart[semester][subjectIndex];
-
-    if (subject.status === 'todo') {
-      subject.status = 'doing';
-    } else if (subject.status === 'doing') {
-      subject.status = 'done';
-    } else {
-      subject.status = 'todo';
-    }
-
-    const response = await api.put(
-      `/student-subject/${subject.id}`,
-      {
-        status: subject.status,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      setFlowchart(newFlowchart);
-    }
   }
 
   function getPreviousSubjects(semester, subjectIndex) {
@@ -344,7 +243,6 @@ export default function Flowchart() {
       if (semesterKeys.includes(i.toString())) {
         for (let j = 0; j < flowchart[i].length; j++) {
           if (previousSubjects.includes(flowchart[i][j].code)) {
-            console.log('oi');
             getPreviousSubjects(i, j);
           }
         }
@@ -413,11 +311,6 @@ export default function Flowchart() {
           window.scrollTo(0, 0);
         }, 350)
       );
-    } else if (e.detail === 2) {
-      clearTimeout(subjectTimeouts);
-      if (!isArchived) {
-        updateSubjectsState(semester, subjectIndex);
-      }
     }
   }
 
@@ -435,72 +328,6 @@ export default function Flowchart() {
   }
 
   const [modalStep, setModalStep] = useState(3);
-  const [visibleInput, setVisibleInput] = useState(false);
-
-  async function handleComment(e) {
-    e.preventDefault();
-
-    if (!commentMessage) return;
-
-    try {
-      const response = await api.post(
-        '/comments',
-        {
-          subject_id: selectedSubject.id,
-          content: commentMessage,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem(
-              'myFlowchart@token'
-            )}`,
-          },
-        }
-      );
-
-      if (response.status === 201) {
-        let updatedFlowchart = [];
-        let updatedSubject = {
-          ...selectedSubject,
-          comments: [
-            ...selectedSubject.comments,
-            {
-              content: commentMessage,
-              created_at: new Date().toISOString(),
-            },
-          ],
-        };
-        updatedSubject.comments.sort(function (a, b) {
-          return new Date(a.created_at) - new Date(b.created_at);
-        });
-
-        Object.keys(flowchart).map((semester) => {
-          let updatedSemester = [];
-
-          if (semester === selectedSubject.semester) {
-            flowchart[semester].map((subject) => {
-              if (subject.id === selectedSubject.id) {
-                updatedSemester.push(updatedSubject);
-              } else {
-                updatedSemester.push(subject);
-              }
-              return null;
-            });
-            updatedFlowchart[semester] = updatedSemester;
-          } else {
-            updatedFlowchart[semester] = flowchart[semester];
-          }
-          return null;
-        });
-
-        setSelectedSubject(updatedSubject);
-        setFlowchart(updatedFlowchart);
-        setCommentMessage('');
-      }
-    } catch (error) {
-      alert('Ocorreu um erro, tente novamente!');
-    }
-  }
 
   return (
     <div
@@ -540,7 +367,9 @@ export default function Flowchart() {
             <p>{selectedSubject.name}</p>
             {modalStep > 1 && (
               <p>
-                {modalStep === 2 ? 'Programa da disciplina' : `Suas anotações`}
+                {modalStep === 2
+                  ? 'Programa da disciplina'
+                  : `Anotações de ${username}`}
               </p>
             )}
 
@@ -582,7 +411,7 @@ export default function Flowchart() {
                 </div>
                 <div onClick={() => setModalStep(3)} className="btn">
                   <BiNote size={20} color="#7d83ff" />
-                  <p>Suas anotações</p>
+                  <p>Anotações de {username}</p>
                 </div>
               </>
             )}
@@ -655,109 +484,16 @@ export default function Flowchart() {
                       );
                     })}
                 </div>
-                <form id="comment-form" onSubmit={handleComment}>
-                  <input
-                    type="text"
-                    value={commentMessage}
-                    onChange={(e) => setCommentMessage(e.target.value)}
-                    placeholder="Anotação aqui..."
-                  />
-                  <button type="submit">
-                    <FaPaperPlane />
-                  </button>
-                </form>
               </>
             )}
           </div>
         </div>
       )}
 
-      {/* Modal de compartilhamento/privacidade */}
-      {showPrivacyModal && (
-        <div
-          id="privacy-modal-container"
-          onClick={() => setShowPrivacyModal(!showPrivacyModal)}
-        >
-          <div id="privacy-modal" onClick={(e) => e.stopPropagation()}>
-            {modalLoading ? (
-              <div id="loading-container">
-                <Dots color="#7D83FF" size={32} />
-              </div>
-            ) : (
-              <>
-                <div>
-                  <p> </p>
-                  <IoMdClose
-                    color="#aaabcb"
-                    onClick={() => setShowPrivacyModal(!showPrivacyModal)}
-                    id="close-modal-btn"
-                  />
-                </div>
-
-                <form onSubmit={(e) => e.preventDefault()}>
-                  <label htmlFor="is_public">Privacidade do Fluxograma</label>
-                  <select
-                    name="is_public"
-                    onChange={(e) => {
-                      setPrivacySettings({
-                        ...privacySettings,
-                        is_public: e.target.value === 'true',
-                      });
-                      setAreSettingsBeingUpdated(true);
-                    }}
-                    value={privacySettings.is_public}
-                  >
-                    <option value={true}>Público</option>
-                    <option value={false}> Privado</option>
-                  </select>
-
-                  {privacySettings.is_public && (
-                    <>
-                      <div id="comments-privacy">
-                        <input
-                          type="checkbox"
-                          id=""
-                          name="has_public_comments"
-                          onChange={(e) => {
-                            setPrivacySettings({
-                              ...privacySettings,
-                              has_public_comments: e.target.checked,
-                            });
-                            setAreSettingsBeingUpdated(true);
-                          }}
-                          value={privacySettings.has_public_comments}
-                          checked={privacySettings.has_public_comments}
-                        />
-                        <p>Tornar anotações públicas</p>
-                      </div>
-                      <button type="button" onClick={handleShareUrl}>
-                        Compartilhar Link
-                      </button>
-                    </>
-                  )}
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      )}
       <div id="page-header">
-        <button onClick={handleLogout} title="Sair">
-          <MdLogout color="white" id="logout-icon" />
-        </button>
-        <h1
-          className="page-title"
-          onClick={() => navigate('/student/flowchart')}
-        >
+        <h1 className="page-title" onClick={() => navigate('/')}>
           Fluxograma - {flowchartName}
         </h1>
-        <button
-          id="share-button"
-          title="Compartilhar link do fluxograma"
-          onClick={openPrivacyModal}
-        >
-          <MdShare color="white" />
-        </button>
       </div>
       <div id="semesters-container" className="semesters-container">
         {Object.keys(flowchart).map((semester) => {
