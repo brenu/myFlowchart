@@ -7,10 +7,9 @@ import {
 
 import Login from './pages/Login';
 import Flowchart from './pages/Student/Flowchart';
-import CoordinatorDashboard from './pages/Coordinator/CoordinatorDashboard';
+import CoordinatorDashboard from './pages/CoordinatorDashboard';
 
 import {getAuthLevel, isAuthenticated} from './auth';
-import SubjectForm from './pages/Coordinator/SubjectForm';
 import Register from './pages/Register';
 import FlowchartSelection from './pages/Student/FlowchartSelection';
 
@@ -53,14 +52,6 @@ export default function AppRoutes() {
           element={
             <PrivateRoute component={CoordinatorDashboard} role="coordinator" />
           }
-        />
-        <Route
-          path="/coordinator/subject"
-          element={<PrivateRoute component={SubjectForm} role="coordinator" />}
-        />
-        <Route
-          path="/coordinator/subject/:id"
-          element={<PrivateRoute component={SubjectForm} role="coordinator" />}
         />
       </Routes>
     </Router>

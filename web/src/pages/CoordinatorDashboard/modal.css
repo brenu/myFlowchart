@@ -1,0 +1,299 @@
+/* Modal and background */
+#subject-form-modal-background {
+  position: fixed;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 4;
+
+  background: #37385699;
+  backdrop-filter: blur(1px);
+}
+
+#subject-form-modal-background > div {
+  max-width: 541px;
+  width: 80vw;
+  height: 80vh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 30px;
+
+  background: var(--bg-primary);
+  border-radius: 3%;
+}
+
+#subject-form-modal {
+  position: relative;
+  overflow-y: auto;
+}
+
+#subject-form-modal > div {
+  align-items: center;
+  justify-content: space-between;
+}
+
+#subject-form-header {
+  display: flex;
+  align-items: center;
+}
+
+#subject-form-modal > div > p {
+  color: var(--text-primary);
+  text-align: center;
+}
+
+#subject-form-modal > div p {
+  color: #aaabcb;
+  font-weight: normal;
+}
+
+#subject-form-modal #next-btn {
+  width: 100%;
+  display: flex;
+  margin-top: 15px;
+  padding: 15px;
+
+  align-items: center;
+  justify-content: center;
+}
+
+#subject-form-modal #next-btn > p {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400 !important;
+  color: white;
+  font-size: var(--small-text);
+  margin-right: 5px;
+}
+
+#close-modal-btn:hover {
+  cursor: pointer;
+}
+
+#modal-left-btn {
+  height: 10px;
+}
+
+#subject-form-modal hr {
+  background-color: var(--subject-todo);
+  margin: 4vh 0;
+  border-width: 0;
+  height: 2px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+#page-container #subject-form-modal-background input::-webkit-outer-spin-button,
+#page-container
+  #subject-form-modal-background
+  input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox */
+#page-container #subject-form-modal-background input[type='number'] {
+  -moz-appearance: textfield !important;
+}
+
+#page-container #subject-form-modal-background input::placeholder {
+  color: var(--text-light-purple) !important;
+  font-weight: 300;
+}
+
+#subject-form-modal-background #subject-form-modal {
+  width: 80%;
+}
+
+/* First modal page: Basic subject info */
+#subject-form-info {
+  display: grid;
+  grid-template-columns: 50% 47%;
+  gap: 10px 3%;
+  /* gambiarra no gap :3 */
+}
+
+#subject-form-info > div:first-of-type {
+  width: 100%;
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+#subject-form-info > div:nth-of-type(2) {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+#subject-form-info > div:nth-of-type(3) {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+#subject-form-info > div:nth-of-type(4) {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+#subject-form-info > div:nth-of-type(5) {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+#subject-form-info > div:nth-of-type(6) {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+#subject-form-info > div:nth-of-type(7) {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+#subject-form-info #field-title {
+  font-size: var(--small-text);
+  color: var(--text-gray);
+  padding-bottom: 5px;
+}
+
+#subject-form-info > div > input {
+  box-sizing: border-box;
+  font-size: var(--small-text);
+  width: 100%;
+  font-weight: 500;
+  border: 0;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+  background: var(--subject-todo);
+  color: var(--text-primary);
+}
+
+/* Second modal page: Subject program */
+#subject-form-program {
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  display: flex;
+  flex-direction: column;
+}
+
+#subject-form-program #field-title {
+  font-size: var(--small-text);
+  color: var(--text-gray);
+  padding-bottom: 0px;
+  padding-top: 10px;
+}
+
+#subject-form-program textarea {
+  box-sizing: border-box;
+  font-size: var(--small-text);
+  width: 100%;
+  font-weight: 500;
+  border: 0;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+  background: var(--subject-todo);
+  color: var(--text-primary);
+  margin: 10px 0;
+}
+
+#subject-form-program textarea::placeholder {
+  color: var(--text-light-purple);
+  font-weight: 300;
+}
+
+/* Third modal page: Subject prerequisites */
+
+#subject-form-prerequisites {
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  display: flex;
+  flex-direction: column;
+}
+
+#subject-form-prerequisites #field-title {
+  font-size: var(--small-text);
+  color: var(--text-gray);
+  padding-bottom: 0px;
+  padding-top: 10px;
+}
+
+#subject-form-prerequisites .prerequisites-container {
+  /* padding-top: 2vh; */
+  padding-bottom: 2vh;
+}
+
+#subject-form-prerequisites .prerequisites-container .semester-button {
+  display: flex;
+  align-items: center;
+  font-size: var(--regular-text);
+  position: relative;
+}
+
+#subject-form-prerequisites .prerequisites-container .semester-button:hover {
+  cursor: pointer;
+  color: var(--bg-secondary);
+  font-weight: bold;
+}
+
+#subject-form-prerequisites .prerequisites-container .subject-radio-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#subject-form-prerequisites
+  .prerequisites-container
+  .subject-radio-container
+  p {
+  color: var(--text-primary);
+  font-size: var(--small-text);
+  padding-left: 5px;
+}
+
+#subject-form-prerequisites #success {
+  margin-top: 10px;
+  font-size: var(--small-text);
+  font-weight: 600;
+  color: var(--bg-secondary);
+}
+
+#subject-form-prerequisites #fail {
+  margin-top: 10px;
+  font-size: var(--small-text);
+  font-weight: 600;
+  color: red;
+}
+
+/* Media queries */
+@media (max-width: 1200px) {
+  #subject-form-modal-background > div {
+    width: 70%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    padding: 30px;
+
+    background: var(--bg-primary);
+    border-radius: 3%;
+  }
+}
+
+@media (max-width: 900px) {
+  #subject-form-modal-background > div {
+    width: 90%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    padding: 30px;
+
+    background: var(--bg-primary);
+    border-radius: 3%;
+  }
+}

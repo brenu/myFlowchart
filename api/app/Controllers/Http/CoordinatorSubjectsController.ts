@@ -27,7 +27,7 @@ export default class CoordinatorSubjectsController {
 
       for (let item of semesters) {
         subjects[item.$original.semester] = await Subject.query()
-          .select(['id', 'summary', 'name', 'semester', 'code'])
+          .select(['id', 'summary', 'name', 'semester', 'code', 'assessment', 'methodology', 'objective', 'practical_load', 'theoretical_load', 'professor'])
           .where('flowchart_id', flowchart.id)
           .andWhere('semester', item.$original.semester)
           .andWhere('is_archived', false)
