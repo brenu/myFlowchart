@@ -49,9 +49,7 @@ export default function ResetPassword() {
           <form>
             <div className="header">
               <h2>Redefinir senha</h2>
-              <p>
-                Não tem problema, te enviaremos as instruções para recuperação.
-              </p>
+              <p>Defina sua nova senha!</p>
             </div>
             <input
               type="password"
