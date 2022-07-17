@@ -143,7 +143,7 @@
   /**
    * User input values.
    */
-  --grid-layout-gap: 40px;
+  --grid-layout-gap: 20px;
   --grid-column-count: 10;
   --grid-item--min-width: 130px;
 
@@ -169,7 +169,8 @@
   .subjects-container
   .subject-container {
   display: flex;
-  width: 100%;
+  width: 145px;
+  margin: 0;
 
   height: 80px;
 
@@ -211,10 +212,26 @@
   #admin-dashboard-content #page-header {
     justify-content: center;
   }
+
   #admin-dashboard-content #page-header .header-btn {
     display: none !important;
   }
+
   #mob-logout-btn {
     display: block;
+  }
+}
+
+@media (min-width: 800px) {
+  #admin-dashboard-content
+    .semester-container
+    .subjects-container
+    .subject-container {
+    width: 100%;
+    margin: 10px 20px;
+  }
+
+  #admin-dashboard-content .semester-container .subjects-container {
+    --grid-layout-gap: 40px;
   }
 }
