@@ -14,6 +14,7 @@ import {FaPlus} from 'react-icons/fa';
 import {BsShareFill} from 'react-icons/bs';
 import {MdLogout} from 'react-icons/md';
 import {BiArrowBack, BiRightArrowAlt} from 'react-icons/bi';
+import {RiDeleteBin2Line} from 'react-icons/ri';
 
 //Styles
 import './styles.css';
@@ -21,6 +22,7 @@ import './modal.css';
 
 import {ReactComponent as Updated} from '../../assets/updated.svg';
 import {ReactComponent as Created} from '../../assets/created.svg';
+import {ReactComponent as Deleted} from '../../assets/deleted.svg';
 
 function min(a, b) {
   if (a < b) return a;
@@ -74,34 +76,40 @@ function CoordinatorDashboard() {
     prerequisites: [],
   });
 
-  useEffect(() => {
-    async function handleInit() {
-      try {
-        const response = await api.get('/coordinator/subject', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem(
-              'myFlowchart@token'
-            )}`,
-          },
-        });
+  async function fetchSubjectsData() {
+    try {
+      const response = await api.get('/coordinator/subject', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('myFlowchart@token')}`,
+        },
+      });
 
-        if (response.status === 200) {
-          setSubjects(response.data.subjects);
-          setFlowchartId(response.data.flowchart_id);
-          setFlowchartName(response.data.flowchart_name);
-        }
-      } catch (error) {
-        alert('Houve um erro em nosso servidor, tente novamente mais tarde!');
-        deleteCredentials();
-        navigate('/');
+      console.log(response.data.subjects);
+      if (response.status === 200) {
+        setSubjects(response.data.subjects);
+        setFlowchartId(response.data.flowchart_id);
+        setFlowchartName(response.data.flowchart_name);
       }
+    } catch (error) {
+      alert('Houve um erro em nosso servidor, tente novamente mais tarde!');
+      deleteCredentials();
+      navigate('/');
     }
+  }
 
-    handleInit();
+  useEffect(() => {
+    fetchSubjectsData();
   }, []);
+
+  useEffect(() => {
+    console.log('UPDATE');
+    console.log(subjects);
+  }, [subjects]);
 
   async function handleCreation() {
     setLoading(true);
+    console.log(subjectData);
+
     try {
       const response = await api.post('/coordinator/subject', subjectData, {
         headers: {
@@ -111,6 +119,7 @@ function CoordinatorDashboard() {
 
       if (response.status === 201) {
         setModalStep(4);
+        fetchSubjectsData();
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -122,8 +131,8 @@ function CoordinatorDashboard() {
 
   async function handleEditing() {
     setLoading(true);
+    console.log(subjectData);
     try {
-      console.log(subjectData);
       const response = await api.put(
         `/coordinator/subject/${subjectData.id}`,
         subjectData,
@@ -138,6 +147,33 @@ function CoordinatorDashboard() {
 
       if (response.status === 200) {
         setModalStep(4);
+        fetchSubjectsData();
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message);
+      }
+    }
+    setLoading(false);
+  }
+
+  async function handleDelete() {
+    setLoading(true);
+    try {
+      const response = await api.delete(
+        `/coordinator/subject/${subjectData.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              'myFlowchart@token'
+            )}`,
+          },
+        }
+      );
+
+      if (response.status === 204) {
+        setModalStep(5);
+        fetchSubjectsData();
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -236,16 +272,18 @@ function CoordinatorDashboard() {
       {showModal && (
         <div
           id="subject-form-modal-background"
-          onClick={() => setShowModal(!showModal)}
+          onClick={() =>
+            setShowModal(!window.confirm('Deseja fechar o formulário?'))
+          }
         >
           <div id="subject-form-modal" onClick={(e) => e.stopPropagation()}>
             <div id="subject-form-header">
               <BiArrowBack
                 color="#aaabcb"
                 onClick={() => setModalStep(1)}
-                class={
+                className={
                   'close-modal-btn ' +
-                  (modalStep === 1 || modalStep === 4 ? 'invisible' : '')
+                  (modalStep === 1 || modalStep >= 4 ? 'invisible' : '')
                 }
               />
 
@@ -256,18 +294,20 @@ function CoordinatorDashboard() {
                     : 'Atualizar disciplina'}
                 </p>
                 <div
-                  class={
+                  className={
                     'progress-element ' + (modalStep === 4 ? 'invisible' : '')
                   }
                 >
-                  <div class={'filled f' + modalStep}></div>
+                  <div className={'filled f' + modalStep}></div>
                 </div>
               </div>
 
               <IoMdClose
                 color="#aaabcb"
-                onClick={() => setShowModal(!showModal)}
-                class="close-modal-btn"
+                onClick={() =>
+                  setShowModal(!window.confirm('Deseja fechar o formulário?'))
+                }
+                className="close-modal-btn"
               />
             </div>
 
@@ -329,6 +369,7 @@ function CoordinatorDashboard() {
 
                     <div>
                       <p id="field-title">Carga horária</p>
+                      <hr />
                     </div>
 
                     <div>
@@ -401,6 +442,28 @@ function CoordinatorDashboard() {
                     <p>Próximo</p>
                     <BiRightArrowAlt color="white" />
                   </button>
+                  {!isCreateOperation && (
+                    <>
+                      <button
+                        onClick={() => {
+                          window.confirm(
+                            'Tem certeza que deseja\n excluir a disciplina?'
+                          ) && handleDelete();
+                        }}
+                        id="delete-btn"
+                      >
+                        {loading ? (
+                          <Dots color="var(--text-red)" />
+                        ) : (
+                          <>
+                            <p>Excluir disciplina</p>
+                            <RiDeleteBin2Line color="var(--text-red)" />
+                          </>
+                        )}
+                      </button>
+                      <p id="fail">{errorMessage}</p>
+                    </>
+                  )}
                 </>
               )}
               {/* Página 2: Programa da disciplina*/}
@@ -553,12 +616,30 @@ function CoordinatorDashboard() {
               {modalStep === 4 && (
                 <>
                   <div id="subject-form-success">
-                    <Created width="200" height="200" />
+                    {isCreateOperation ? (
+                      <Created width="200" height="200" />
+                    ) : (
+                      <Updated width="200" height="200" />
+                    )}
                     <p>
                       {isCreateOperation
                         ? 'Disciplina adicionada\ncom sucesso.'
                         : 'Suas alterações foram salvas.'}
                     </p>
+
+                    <button onClick={() => setShowModal(false)} id="next-btn">
+                      <p>Sair</p>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Página 4: Success*/}
+              {modalStep === 5 && (
+                <>
+                  <div id="subject-form-success">
+                    <Deleted width="200" height="200" />
+                    <p>A disciplina foi removida</p>
 
                     <button onClick={() => setShowModal(false)} id="next-btn">
                       <p>Sair</p>
